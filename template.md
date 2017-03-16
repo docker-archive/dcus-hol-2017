@@ -30,4 +30,5 @@ Before we begin, we will need to:
 1. Create as many tasks as needed to break the lab into logical steps
 
 ##Wrap Up
+
 Thank you for taking the time to complete this lab! Feel free to try any of the other labs. I
