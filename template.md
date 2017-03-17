@@ -13,6 +13,7 @@ Quick description of the lab.
 > * [Task 2](#task2)
 
 ##Document conventions
+
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
 For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh labuser@v111node0-adaflds023asdf-23423kjl.appnet.com`
