@@ -12,7 +12,7 @@ Quick description of the lab.
 > * [Task 1](#task1)
 > * [Task 2](#task2)
 
-##Document conventions
+## Document conventions
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
