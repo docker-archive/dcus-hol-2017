@@ -1,6 +1,6 @@
 # Lab X: Windows Docker Containers 101
 
-Docker runs natively on Windows 10 and Windows Server 2016. In this lab you'll learn how to package Windows applications as Docker images and run them as Docker containers. You'll learn how to organize distributed solutions using Docker Compose, and orchestrate them using Docker swarm mode.
+Docker runs natively on Windows 10 and Windows Server 2016. In this lab you'll learn how to package Windows applications as Docker images and run them as Docker containers. You'll learn how to create a cluster of Docker servers in swarm mode, and deploy an application as a highly-available service.
 
 > **Difficulty**: Beginner 
 
@@ -20,23 +20,23 @@ Docker runs natively on Windows 10 and Windows Server 2016. In this lab you'll l
 > * [Task 3: Run your app in a highly-available cluster](#task3)
 >   * [Task 3.1: Create a Docker swarm with Windows Server nodes](#task3.1)
 >   * [Task 3.2: Deploy your website as a service](#task3.2)
->   * [Task 3.3: Take a node offline for servicing](#task3.3)
+>   * [Task 3.3: Take a node offline for maintenance](#task3.3)
 
 ## Document conventions
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
-For instance if you see `mstsc /v: <server1>` you would actually type something like `mstsc /v: server1-adaflds023asdf-23423kjl.appnet.com`
+For instance if you see `$ip = <ip-address>` you would actually type something like `$ip = '10.0.0.4'`
 
-You will be asked to RDP into various nodes. These nodes are referred to as **v111node0**, **v111node1** etc. These tags correspond to the very beginning of the hostnames you will find in your welcome email. 
+You will be asked to RDP into various servers. You will find the actual server names to use in your welcome email. 
 
 ## <a name="prerequisites"></a>Prerequisites
 
-You will be provided a set of Windows Server 2016 vritual machines running in Azure, which are already configured with Docker and the Windows base images. You do not need Docker running on your laptop, but you will need a Remote Desktop client to connect to the VMs. 
+You will be provided a set of Windows Server 2016 virtual machines running in Azure, which are already configured with Docker and the Windows base images. You do not need Docker running on your laptop, but you will need a Remote Desktop client to connect to the VMs. 
 
 - Windows - use the built-in Remote Desktop Connection app.
 - Mac - install [Microsoft Remote Desktop](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12) from the app store.
-- Linux - install [Remmina]http://www.remmina.org/wp/) (or any RDP client you prefer).
+- Linux - install [Remmina](http://www.remmina.org/wp/), or any RDP client you prefer.
 
 You will build images and push them to Docker Hub, so you can pull them on different Docker hosts. You will need a Docker ID.
 
@@ -50,7 +50,7 @@ There are different ways to use containers:
 2. Interactively for connecting to the container like a remote server
 3. To run a single task, which could be a PowerShell script or a custom app
 
-In this section you'll try each of those options and see how Docker manages the workload. Before you start, let's check the Docker service is up and running. Open a PowerShell prompt from the taskbar shortcut, and run:
+In this section you'll try each of those options and see how Docker manages the workload. Before you start, let's check the Docker service is up and running. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and run:
 
 ```
 docker version
@@ -68,7 +68,7 @@ docker run microsoft/nanoserver powershell Write-Output Hello DockerCon 2017!
 
 You'll see the output written from the PowerShell command. Here's what Docker did:
 
-- created a new container from the [microsoft/nanoserver]() image, which is a basic Nano Server image, maintained by Microsoft
+- created a new container from the [microsoft/nanoserver](https://hub.docker.com/r/microsoft/nanoserver/) image, which has a basic Nano Server deployment, maintained by Microsoft
 - started the container, running the `powershell` command and passing the `Write-Output...` arguments
 - relayed the console output from the container to the PowerShell window
 
@@ -85,7 +85,7 @@ Containers which do one task and then exit can be very useful. You could build a
 
 ## <a name="task1.2"></a>Task 1.2: Run an interactive Windows Server Core container
 
-Nano Server is a new operating system from Microsoft which supports a subset of the full Windows APIs. You can use it to package cross-platform applications like Java, Go, Node.js and .NET Core, but not full .NET Framework apps. For that there's the [microsoft/windowsservercore]() image which is a full Windows Server 2016 OS, without the UI.
+Nano Server is a new operating system from Microsoft which supports a subset of the full Windows APIs. You can use it to package cross-platform applications like Java, Go, Node.js and .NET Core, but not full .NET Framework apps. For that there's the [microsoft/windowsservercore](https://hub.docker.com/r/microsoft/windowsservercore) image which is a full Windows Server 2016 OS, without the UI.
 
 You can explore an image by running an interactive container. Run this to start a Windows Server Core container and connect to it:
 
@@ -100,13 +100,13 @@ When the container starts you'll drop into a PowerShell session with the default
 
 Run some commands to see how the Windows Server Core image is built:
 
-- `ls c:\` - lists the C drive contents, you'll see there's a minimal installation of Windows 
+- `ls c:\` - lists the C drive contents, you'll see this is a minimal installation of Windows 
 - `Get-Process` - shows all running processes in the container. There are a number of Windows Services, and the PowerShell exe
 - `Get-WindowsFeature` - shows the Windows feature which are available or already installed
 
-You'll see that the base image has .NET 4.6 installed, which is backwards-compatible so you can run .NET 2.0 apps. Almost all Windows Server features are available (.NET 3.5 is an exception, but the [microsoft/aspnet:3.5]() image comes with that installed). You can install them with the `Add-WindowsFeature` cmdlet, which is how you would start to build up a custom application image from the base image, adding in the features you need.
+You'll see that the base image has .NET 4.6 installed, which is backwards-compatible so you can run .NET 2.0 apps. Almost all Windows Server features are available (.NET 3.5 is an exception, but the [microsoft/aspnet:3.5](https://hub.docker.com/r/microsoft/aspnet/) image comes with that installed). You can install them with the `Add-WindowsFeature` cmdlet, which is how you would start to build up a custom application image from the base image, adding in the features you need.
 
-Interactive containers are useful when you are putting together your own image. You can run a container and verify all the steps you need to deploy your app. Once you have it working, you can [export]() a running container to an image - but it's much better to capture those steps in a repeatable [Dockerfile](). You'll do that in a lter step.
+Interactive containers are useful when you are putting together your own image. You can run a container and verify all the steps you need to deploy your app. Once you have it working, you can [commit](https://docs.docker.com/engine/reference/commandline/commit/) a running container to an image - but it's much better to capture those steps in a repeatable [Dockerfile](https://docs.docker.com/engine/reference/builder/). You'll do that in a later task.
 
 Now run `exit` to leave the PowerShell session. That stops the container process, so the container exits. You ran the container with the `--rm` flag, so Docker will delete it - run `docker ps -a` now and you'll see only the original Nano Server container.
 
@@ -121,7 +121,7 @@ docker run -d -p 80:80 --name iis microsoft/iis
 
 - `-d` starts in detached mode, Docker runs the container in the background and monitors it
 - `-p` publishes a port. The IIS image is built to allow traffic in on port 80. This maps port 80 on the host to port 80 in the container
-- `--name` gives the container a name so you can refer to it when for management commands
+- `--name` gives the container a name so you can refer to it in management commands
 
 Open a browser on your laptop and go to the address of your VM. You'll see the basic IIS homepage, which is being generated by the container:
 
@@ -141,24 +141,26 @@ It's important to realize that the container process - `w3wp.exe` in this case -
 
 ## <a name="task2"></a>Task 2: Package and run a custom app using Docker
 
-Next you'll learn how to package your own Windows app as a Docker image, using a [Dockerfile](). The Dockerfile is a simple script which contains all the steps to deploy your application. You need to use an existing image as the starting point for your app, but you decide which one. You can use the base Windows Server or Nano Server image, or an [official image]() with the app platform already installed - like [openjdk:windowsservercore]() which is good for running Java apss in Windows Docker containers.
+Next you'll learn how to package your own Windows app as a Docker image, using a [Dockerfile](https://docs.docker.com/engine/reference/builder/). 
+
+The Dockerfile is a simple script which contains all the steps to deploy your application. You need to use an existing image as the starting point for your app, but you decide which one. You can use the base Windows Server or Nano Server image, or an [official image](https://docs.docker.com/docker-hub/official_repos/) with the app platform you need already installed - like [openjdk:windowsservercore](https://hub.docker.com/_/openjdk/) which is good for running Java apss in Windows Docker containers.
 
 The Dockerfile syntax is simple. In this task you'll walk through a Dockerfile for a custom website, and see how to package and run it with Docker.
 
 Have a look at the [Dockerfile for the lab](tweet-app/Dockerfile), which builds a simple static website running on IIS. These are the main features:
 
-- it is based [FROM]() `microsoft/windowsservercore`, so the image will start with a clean Windows Server 2016 deployment
-- it uses the [SHELL]() instruction to switch to PowerShell when building the Dockerfile, so the commands to run are all in PowerShell
-- it adds the IIS feature and exposes port 80, setting up the web server and allowing traffic into containers on port 80
+- it is based [FROM](https://docs.docker.com/engine/reference/builder/#from) `microsoft/windowsservercore`, so the image will start with a clean Windows Server 2016 deployment
+- it uses the [SHELL](https://docs.docker.com/engine/reference/builder/#shell) instruction to switch to PowerShell when building the Dockerfile, so the commands to run are all in PowerShell
+- it adds the IIS Windows feature and exposes port 80, setting up the web server and allowing traffic into containers on port 80
 - it configures IIS to write all log output to a single file, using the `Set-WebConfigurationProperty` cmdlet
 - it copies the [start.ps1](tweet-app/start.ps1) startup script and [index.html](tweet-app/index.html) files from the host into the image
-- it specifies `start.ps1` as the [CMD]() to run when containers start. The script starts the IIS Windows Service and relays the log file entries to the console
-- it adds a [HEALTHCHECK]() which makes an HTTP GET request to the site and returns whether it got a 200 response code
+- it specifies `start.ps1` as the [CMD](https://docs.docker.com/engine/reference/builder/#cmd) to run when containers start. The script starts the IIS Windows Service and relays the log file entries to the console
+- it adds a [HEALTHCHECK](https://docs.docker.com/engine/reference/builder/#healthcheck) which makes an HTTP GET request to the site and returns whether it got a 200 response code
 
 
 ## <a name="task2.1"></a>Task 2.1: Build a custom website image
 
-The Docker platform has the capability to build, ship and run software, baked into the engine. To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
+The Docker platform has the capability to build, ship and run software. To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
 
 ```
 cd C:\scm\github\docker\dcus-hol-2017\windows-101\tweet-app
@@ -167,7 +169,7 @@ docker build -t <DockerID>/dockercon-tweet-app .
 
 -`-t` tags the image, giving it a name you use to push the image or run containers
 
-> Be sure to use your Docker ID in the image tag. You will share it on Docker HUb in the next step, and you can only do that if you use your ID. My Docker ID is `sixeyed`, so I run `docker build -t sixeyed/dockercon-tweet-app` 
+> Be sure to use your Docker ID in the image tag. You will share it on Docker Hub in the next step, and you can only do that if you use your ID. My Docker ID is `sixeyed`, so I run `docker build -t sixeyed/dockercon-tweet-app` 
 
 You'll see output on the screen as Docker runs each instruction in the Dockerfile, starting like this:
 
@@ -179,7 +181,7 @@ Step 2/10 : SHELL powershell -Command $ErrorActionPreference = 'Stop'; $Progress
 ...
 ```
 
-The build command will take a little while to run, as the step to install IIS takes a while in Windows. Once it's built you'll see a `Successfully built...` message. If you repeat the `docker build` command again, it will complete in seconds. That's because Docker caches the [image layers]() and only runs instructions if the Dockerfile has changed since the cached version.
+The build command will take a little while to run, as the step to install IIS takes a while in Windows. Once it's built you'll see a `Successfully built...` message. If you repeat the `docker build` command again, it will complete in seconds. That's because Docker caches the [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/) and only runs instructions if the Dockerfile has changed since the cached version.
 
 Now if you list the images and filter on the `dockercon` name, you'll see your new image:
 
@@ -194,9 +196,9 @@ Docker has built the image but it's only stored on the local machine. Next we'll
 
 ## <a name="task2.2"></a>Task 2.2: Push your image to Docker Hub
 
-Distribution is built into the Docker platform. You can build images locally and push them to a [registry](), making them available to other users. Anyone with access cna pull that image and run a container from it. The behavior of the app in the container will be the same for everyone, because the image contains the fully-configured app - the only requirements to run it are Windows and Docker.
+Distribution is built into the Docker platform. You can build images locally and push them to a [registry](https://docs.docker.com/registry/), making them available to other users. Anyone with access cna pull that image and run a container from it. The behavior of the app in the container will be the same for everyone, because the image contains the fully-configured app - the only requirements to run it are Windows and Docker.
 
-[Docker Hub]() is the public registry for Docker images. You can push your website image to the Hub, and later in the lab we'll pull it on other servers so it runs on a cluster. To push images, you need to log in using the command line and providing your Docker ID credentials:
+[Docker Hub](https://hub.docker.com) is the public registry for Docker images. You can push your website image to the Hub, and later in the lab we'll pull it on other servers and run it on a cluster. To push images, you need to log in using the command line and providing your Docker ID credentials:
 
 ```
 > docker login
@@ -214,7 +216,7 @@ docker push <DockerID>/dockercon-tweet-app
 
 You'll see the upload progress for each layer in the Docker image. The IIS layer is almost 300MB so that will take a few seconds. The whole image is over 10GB, but the bulk of that is in the Windows Server Core base image. Those layers are already stored in Docker Hub, so they don't get uploaded - only the new parts of the image get pushed.
 
-You can browse to ==https://hub.docker.com/r/<DockerID>/dockercon-tweet-app/== and see your newly-pushed app image. This is a public repository, so anyone can pull the image - you don't even need a Docker ID to pull public images.
+You can browse to *https://hub.docker.com/r/&lt;DockerID&gt;/dockercon-tweet-app/* and see your newly-pushed app image. This is a public repository, so anyone can pull the image - you don't even need a Docker ID to pull public images.
 
 ## <a name="task2.3"></a>Task 2.3: Run your website in a container
 
@@ -243,7 +245,7 @@ Go ahead and hit the button to Tweet about your lab progress! No data gets store
 
 Your app is packaged in a portable Docker image, and you can rebuild it any time with a simple script. You've shared it on Docker Hub and deployed it on a cloud server, but at the moment you just have a single VM serving your app. That doesn't give you high availability, and for a tier 1 app like this you'll want to avoid downtime if there are any issues with the VM.
 
-Docker supports failover and scaling with a clustering technology built righ into the engine - [Docker swarm mode](). You don't need anything extra to turn a set of machines into a highly-available cluster, just Windows and Docker. In the rest of this lab you'll set up a swarm of three VMs and deploy the web app on the swarm.
+Docker supports failover and scaling with a clustering technology built righ into the engine - [Docker swarm mode](https://docs.docker.com/engine/swarm/). You don't need anything extra to turn a set of machines into a highly-available cluster, just Windows and Docker. In the rest of this lab you'll set up a swarm of three VMs and deploy the web app on the swarm.
 
  
 ## <a name="task3.1"></a> Task 3.1: Create a Docker swarm with Windows Server nodes
@@ -255,7 +257,7 @@ docker container kill $(docker container ls -a -q)
 docker container rm $(docker container ls -a -q)
 ```
 
-First you need to get the internal IP address of the VM - that's so the swarm nodes can communicate privately, and the internal traffic doesn't go across the publin Internet. Run `ipconfig` and save the internal IP address in a PowerShell variable - on my Azure VM it's `10.0.0.4`:
+First you need to get the internal IP address of the VM - that's so the swarm nodes can communicate privately, and the internal traffic doesn't go across the public Internet. Run `ipconfig` and make a note of the IP address - on my Azure VM it's `10.0.0.4`:
 
 ```
 > ipconfig
@@ -270,8 +272,11 @@ Ethernet adapter vEthernet (HNSTransparent):
    Subnet Mask . . . . . . . . . . . : 255.255.240.0
    Default Gateway . . . . . . . . . : 10.0.0.1
 
-...
-$ip = '10.0.0.4'
+```
+Save the internal IP address in a PowerShell variable to use next:
+
+```
+$ip = '<ip-address>'
 ```
 
 Now switch to swarm mode. Run the `swarm init` command to initialize the swarm, specifying the local IP address for the swarm advertise and listen addresses:
@@ -280,7 +285,7 @@ Now switch to swarm mode. Run the `swarm init` command to initialize the swarm, 
 docker swarm init --listen-addr $ip --advertise-addr $ip
 ```
 
-> The RDP session may be interrupted because of a network change when the node switches to swarm mode. It will reconnect in a few seconds.
+> Your RDP session may be interrupted because of a network change when the node switches to swarm mode. It will reconnect in a few seconds.
 
 The output shows you that Docker is now in swarm mode, and it gives you the secret token you need to join other nodes to the swarm. The token is used to stop rogue nodes joining your swarm, so you should keep it secure - like a database connection string. The `swarm init` command output looks like this:
 
@@ -296,7 +301,7 @@ To add a worker to this swarm, run the following command:
 To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
 ```
 
-Make a note of the join token, and the IP address of the manager node. Then open an RDP connection to the two other VMs you have access to for this lab. On each VM, open a PowerShell session, run `docker version` to make sure Docker is running, and then join the swarm:
+Make a note of the join token, and the IP address of the manager node. Then open an RDP connection to the two other VMs you have access to for this lab. On each VM, open a PowerShell session from the taskbar, run `docker version` to make sure Docker is running, and then join the swarm:
 
 ```
 docker swarm join --token <swarm-token> <manager-ip-address>:2377
@@ -304,7 +309,7 @@ docker swarm join --token <swarm-token> <manager-ip-address>:2377
 
 The command completes in about a second, and you'll see the output `This node joined a swarm as a worker`. 
 
-You're going to run the web app on every node in the next task, so to reduce startup time it's good to pull the mage in advance. Run `docker pull` on the second and third nodes:
+You're going to run the web app on every node in the next task, so to reduce startup time it's good to pull the image in advance. Run `docker pull` on the second and third nodes:
 
 ```
 docker pull <DockerID>/dockercon-tweet-app
@@ -329,7 +334,7 @@ docker service create `
 
 - `--publish` publishes the ports, but you use a special syntax in swarm mode
 - `--replicas` states how many containers should run the service
-- `--name` gives the service a name
+- `--name` gives the service a name for administration and discovery
 
 Docker will create three containers from the same image, and schedule them to run across the nodes in the cluster. By default the scheduler will use different nodes for each replica if it can, but in this case it will definitely run one replica on each node, because of the host port publishing. Only one process can listen on a port, so Docker won't schedule multiple replicas on one node, because they can't share the port.
 
@@ -343,13 +348,15 @@ gon54xsxp09j        tweet-app.2         sixeyed/dockercon-tweet-app:latest   win
 pjaehhsj8xbp        tweet-app.3         sixeyed/dockercon-tweet-app:latest   win-node02          Running             Running less than a second ago                       *:80->80/tcp
 ```
 
-You'll see each container is on a different node. In a production environment you would have a load balancer as the entrypoint to your application, distributing traffic among the swarm VMs. Any node can receive a request and respond to it. You would also have a healthcheck in the load balancer so traffic only reached healthy nodes - that lets you do [zero-downtime updates]() of your Docker service.
+You'll see each container is on a different node. In a production environment you would have a load balancer as the entrypoint to your application, distributing traffic among the swarm VMs. Any node can receive a request and respond to it. You would also have a healthcheck in the load balancer so traffic only reached healthy nodes - that lets you do [zero-downtime updates](https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/) of your Docker service.
 
 ## <a name="task3.3"></a> Task 3.3: Take a node offline for maintenance
 
-Rolling updates make application deployment easy. You can update a distributed app running on many nodes with a single `docker service update` command, which replaces existing containers with ones from a new image. That lets you update the version of your application, and also the version of the Windows base image you're using - Microsoft regularly update the base image with hotfixes. When a Windows update is released, that's when you should rebuild your images from the new Windows base and update your running services.
+Rolling updates make application deployment easy. You can update a distributed app running on many nodes with a single `docker service update` command, which replaces existing containers with new containers from a new image. 
 
-Your Windows servers will also need updating, and that can be more invasive - updates may be compute intensive, reducing the workload capacoty of the server, and they may require a reboot. Docker swarms have a graceful feature for dealing with that. If you need to do maintenance on a server, you can change its availability and Docker will stop any running containers and start new ones on other nodes.
+That lets you update the version of your application, and also the version of the Windows base image you're using - Microsoft regularly update the base image with hotfixes. When a Windows update is released, that's when you should rebuild your images from the new Windows base and update your running services.
+
+Your host Windows servers will also need updating, and that can be more invasive - updates may be compute intensive, reducing the workload capacity of the server, and they may require a reboot. Docker swarms have a graceful feature for dealing with that. If you need to do maintenance on a server, you can change its availability and Docker will stop any running containers and take the node out of service.
 
 Try that with the thrid VM in your swarm. In PowerShell on the manager node, run:
 
@@ -357,7 +364,7 @@ Try that with the thrid VM in your swarm. In PowerShell on the manager node, run
 docker node update --availability drain <vm-name>
 ```
 
-Drain mode stops all running containers and ensures the node doesn't have any new containers scheduled. Run `docker node ls` and you'll see the worker is still part of the swarm, but its in drain mode. Your web app service is still running on the other nodes:
+Drain mode stops all running containers and ensures the node doesn't have any new containers scheduled. Run `docker node ls` and you'll see the worker is still part of the swarm, but it's in drain mode. Your web app service is still running on the other nodes:
 
 ```
 > docker service ps tweet-app
@@ -383,4 +390,4 @@ Now when you check the service replicas, you'll see a new container starting on 
 
 Thank you for taking the time to complete this lab! You now know how to use Docker on Windows, how to package your own apps as Docker images, and how to run multiple Windows servers as a Docker swarm for high-availability and scale.
 
-Do try the other Windows labs at DockerCon, and make a note to check out the full lab suite when you get home - there are plenty more Windows walkthroughs at [docker/labs]() on GitHub.
+Do try the other Windows labs at DockerCon, and make a note to check out the full lab suite when you get home - there are plenty more Windows walkthroughs at [docker/labs](https://github.com/docker/labs/tree/master/windows) on GitHub.
