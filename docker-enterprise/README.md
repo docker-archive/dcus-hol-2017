@@ -38,19 +38,19 @@ This lab is best done on three separate nodes, though it can be done with a sing
 - Remaining nodes as UCP Worker nodes
 
 
-## <a name="Task 1"></a>Installing UCP
+## <a name="Task 1"></a>Task 1: Installing UCP
 The following task will guide you through how to create a UCP cluster on your hosts.
 
 ### <a name="Task 1a"></a>Installing the UCP Manager
 
 
-1. Log in to one of your hosts.
+1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
 
 ```
 $ ssh -i <indentity file> ubuntu@<ducp-0 public ip>
 ```
 
-2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03.x EE`
+2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
 
 ```
 $ docker version
@@ -100,6 +100,9 @@ TODO picture
 
 You now have a UCP cluster with a single node. Next you are going to add two nodes to the cluster. These nodes are known as Worker nodes and are the nodes that host application containers. 
 
+### <a name="Task 1.1"></a>Joining UCP Worker Nodes
+
+
 5. In the UCP GUI, click through to Resources / Nodes. Click "+ Add Node" and then click "Copy to Clipboard."
 
 The string you copied will look something like the following:
@@ -127,9 +130,23 @@ This indicates that this node is now joining your UCP cluster.
 
 Congratulations! You have succesfully installed and deployed a full UCP cluster. You are now ready to move on to the rest of the lab.
 
-## <a name="Task 2"></a>Deploying a Simple Application
+## <a name="Task 2"></a>Task 2: Deploying a Simple Application with Compose
 
-In this section we will deploy the first version of our application. TODO explanation of stacks, compose, services.
+### <a name="compose"></a>Docker Compose Files
+Compose is a specification for defining and running multi-container Docker applications. With compose, you use a compose file to configure your application’s services. Then, using a single command, you create and start all the services from your configuration. A single compose file can define all aspects of your application deployment including networking, health checks, secrets, and much more. The full specification for compose is defined [here](https://docs.docker.com/compose/compose-file/).
+
+### <a name="compose"></a>Docker Services and Stacks
+
+To deploy an application on UCP or Swarm, you create a [service](https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/). Frequently a service will be the image for a microservice within the context of some larger application. Examples of services might include an HTTP server, a database, or any other type of executable program that you wish to run in a distributed environment. UCP schedules services across a cluster of UCP worker nodes. Services are managed by UCP throughout their lifecycle and can get rescheduled if they die, scaled up and down, gracefully terminated and more.
+
+A [Docker Stack](https://docs.docker.com/engine/reference/commandline/stack_deploy/#related-commands) is an instantiation of a compose file. When a compose file is deployed on UCP it is deployed as a stack. This stack is a group of related services (applications) that can be defined and deployed together in a single compose file.
+
+In this section we will deploy the [Docker Pets](https://github.com/mark-church/docker-paas) application using a compose file. In the following sections we will add features to our compose file and make our application progressively more complex and feature-full. Docker Pets is a simple web app that records votes for different animals and uses a persistent backend to record the votes. It's comprised of two images:
+
+- **`chrch/paas`** is a front-end Python Flask container that serves up random images of housepets, depending on the given configuration
+- **`consul`** is a back-end KV store that stores the number of visits that the web services recieve. It's configured to bootstrap itself with 3 replicas so that we have fault tolerant persistence.
+
+This is the first iteration of our compose file for the Docker Pets application:
 
 ```
 version: '3.1'
@@ -143,6 +160,13 @@ services:
             timeout: 2s
             retries: 3   
 ```
+
+- `version: '3.1'` is the version of the compose format we are using.
+- `web:` is the name that we are giving this service.
+- `image: chrch/paas:1.1` defines the image and version that we are deploying in this service.
+- ```ports:
+            - 5000
+            - ```
 
 
 
