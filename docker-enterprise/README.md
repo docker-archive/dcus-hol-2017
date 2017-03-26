@@ -30,18 +30,106 @@ You will be asked to SSH into various nodes. These nodes are referred to as **v1
 
 ## <a name="prerequisites"></a>Prerequisites
 
-- 1 UCP Controller Node
-- 2 UCP Worker Nodes
+This lab is best done on three separate nodes, though it can be done with a single one. The requirements are as follows:
 
-## <a name="Task 1"></a>Deploying an Application
+- 3 Nodes
+- Docker Enterprise 17.03+ each installed on each
+- 1 node as a UCP Manager node
+- Remaining nodes as UCP Worker nodes
 
-In this section we will deploy the first version of our application. Log in to your UCP console by going to the URL of your UCP GUI `TODO`.
 
+## <a name="Task 1"></a>Installing UCP
+The following task will guide you through how to create a UCP cluster on your hosts.
+
+### <a name="Task 1a"></a>Installing the UCP Manager
+
+
+1. Log in to one of your hosts.
+
+```
+$ ssh -i <indentity file> ubuntu@<ducp-0 public ip>
+```
+
+2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03.x EE`
+
+```
+$ docker version
+Client:
+ Version:      17.03.0-ee-1
+ API version:  1.26
+ Go version:   go1.7.5
+ Git commit:   9094a76
+ Built:        Wed Mar  1 01:20:54 2017
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      17.03.0-ee-1
+ API version:  1.26 (minimum version 1.12)
+ Go version:   go1.7.5
+ Git commit:   9094a76
+ Built:        Wed Mar  1 01:20:54 2017
+ OS/Arch:      linux/amd64
+ Experimental: false
  
+```
 
-1. Click `Resources` on the top bar and go to `Nodes`. Confirm that you have 1 Manager Node and 2 Worker Nodes in your UCP cluster.
+3. Run the UCP installer to install the UCP Controller node.
 
-You will be deploying the following application in UCP:
+You will have to supply the following values to the install command:
+- `--ucp-password` - This can be a password of your choosing
+- `--san` - Supply the public IP address of this host. This will be the IP address you used to initially log in to this host in step 1.
+
+```
+docker run --rm -it --name ucp \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v ~/docker_subscription.lic:/docker_subscription.lic \
+docker/ucp:2.1.1 install \
+--admin-username admin \
+--admin-password <your-password> \
+--san <host-public-ip> \
+--host-address $(hostname -i)
+```
+
+It will take up to 30 seconds to install.
+
+4. Log in to UCP.
+
+Now go to your browser and type in the public IP of this host in the address bar. You should be redirected to a login page. Log in as the user `admin` with the password that you supplied in step 3.
+
+TODO picture
+
+You now have a UCP cluster with a single node. Next you are going to add two nodes to the cluster. These nodes are known as Worker nodes and are the nodes that host application containers. 
+
+5. In the UCP GUI, click through to Resources / Nodes. Click "+ Add Node" and then click "Copy to Clipboard."
+
+The string you copied will look something like the following:
+
+```
+docker swarm join --token SWMTKN-1-5mql67at3mftfxdhoelmufv0f50id358xyyeps4gk9odgxfoym-4nqy2vbs5gzi1yhydhn20nh33 172.31.24.143:2377
+```
+
+This is a Swarm join token. It is a secret token used by nodes so that they can securely join the rest of the UCP cluster.
+ 
+6. Log in to one of your remaining nodes. On the command line run the Swarm join token command you copied from UCP. You will get a status message indicating that this node has joined the cluster.
+
+```
+$ docker swarm join \
+>     --token SWMTKN-1-1dg967kx56j9s0l0o8t8oytwutacsspzjt6f2h2i31s3cevmcm-7tihlxtl2e2uztmxjhtgs5orz \
+>     172.31.30.254:2377
+This node joined a swarm as a worker.
+```
+
+This indicates that this node is now joining your UCP cluster.
+
+7. Repeat step 6 for all of your remaining nodes.
+
+8. Go to the UCP GUI and click on Resources / Nodes. You should now see that all of your nodes listed with their respective role as Manager or Worker.
+
+Congratulations! You have succesfully installed and deployed a full UCP cluster. You are now ready to move on to the rest of the lab.
+
+## <a name="Task 2"></a>Deploying a Simple Application
+
+In this section we will deploy the first version of our application. TODO explanation of stacks, compose, services.
 
 ```
 version: '3.1'
@@ -50,12 +138,14 @@ services:
         image: chrch/paas:1.1
         ports:
             - 5000
-            - 7000
         healthcheck:
             interval: 10s
             timeout: 2s
             retries: 3   
 ```
+
+
+
 
 
 **Goal:** Application Deployment Operations
