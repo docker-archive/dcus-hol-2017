@@ -14,11 +14,23 @@ In this lab you will deploy an application on UCP that takes advantage of some o
 
 > **Time**: Approximately 45 minutes
 
+
 > **Tasks**:
 >
 > * [Prerequisites](#prerequisites)
-> * [Deploying an Application](#task1)
-> * [Task 2](#task2)
+> * [Task 1: Installing UCP](#task1)
+>   * [Task 1.1: Installing the UCP Manager](#task1.1)
+>   * [Task 1.2: Joining UCP Worker Nodes](#task1.2)
+> * [Task 2: Deploying a Simple Application with Compose](#task2)
+>   * [Task 2.1: Okay, Let's Deploy!](#task2.1)
+>   * [Task 2.2: Scaling Services](#task2.2)
+>   * [Task 2.3: Deploying the Visualizer App](#task2.3)
+>   * [Task 2.4: Self-Healing Applications](#task2.4)
+> * [Task 3: Deploying a Complex Multi-Service Application](#task3)
+>   * [Task 3.1: Deploying a Stateful Service ](#task3.1)
+>   * [Task 3.2: Configuring Application Secrets](#task3.2)
+>   * [Task 3.3: Using Healthchecks to Control Application Lifecycle](#task3.3)
+>   * [Task 3.4: Upgrade to application version 1.1](#task3.4)
 
 ## Document conventions
 
@@ -38,10 +50,10 @@ This lab is best done on three separate nodes, though it can be done with a sing
 - Remaining nodes as UCP Worker nodes
 
 
-## <a name="Task 1"></a>Task 1: Installing UCP
+## <a name="task1"></a>Task 1: Installing UCP
 The following task will guide you through how to create a UCP cluster on your hosts.
 
-### <a name="Task 1a"></a>Installing the UCP Manager
+### <a name="task1.1"></a>Task 1.1: Installing the UCP Manager
 
 
 1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
@@ -100,7 +112,7 @@ TODO picture
 
 You now have a UCP cluster with a single node. Next you are going to add two nodes to the cluster. These nodes are known as Worker nodes and are the nodes that host application containers. 
 
-### <a name="Task 1.1"></a>Joining UCP Worker Nodes
+### <a name="Task 1.2"></a>Task 1.2: Joining UCP Worker Nodes
 
 
 5. In the UCP GUI, click through to Resources / Nodes. Click "+ Add Node" and then click "Copy to Clipboard."
@@ -135,7 +147,7 @@ Congratulations! You have succesfully installed and deployed a full UCP cluster.
 ### <a name="compose"></a>Docker Compose Files
 Compose is a specification for defining and running multi-container Docker applications. With compose, you use a compose file to configure your application’s services. Then, using a single command, you create and start all the services from your configuration. A single compose file can define all aspects of your application deployment including networking, health checks, secrets, and much more. The full specification for compose is defined [here](https://docs.docker.com/compose/compose-file/).
 
-### <a name="compose"></a>Docker Services and Stacks
+### <a name="stack"></a>Docker Services and Stacks
 
 To deploy an application on UCP or Swarm, you create a [service](https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/). Frequently a service will be the image for a microservice within the context of some larger application. Examples of services might include an HTTP server, a database, or any other type of executable program that you wish to run in a distributed environment. UCP schedules services across a cluster of UCP worker nodes. Services are managed by UCP throughout their lifecycle and can get rescheduled if they die, scaled up and down, gracefully terminated and more.
 
@@ -164,144 +176,269 @@ services:
 - `version: '3.1'` is the version of the compose format we are using.
 - `web:` is the name that we are giving this service.
 - `image: chrch/paas:1.1` defines the image and version that we are deploying in this service.
-- ```ports:
+- `ports:` configures the ports that we expose for our application. Our application listens on port `5000` so we are exposing port `5000` internally and mapping it to a random ephemeral port externally. UCP will take care of the port mapping and application load balancing for us.
+- `healthcheck:` defines the health check for our application. We are setting the `interval` for how often the check runs and how many `timeouts` we allow before we consider the container to be unhealthy.
+
+### <a name="task2.1"></a>Task 2.1: Okay, Let's Deploy!
+
+1. Log in to your UCP GUI and go to Resources / Stacks & Applilcations / Deploy. Paste the above compose file text into the box under Application Definition. In the Application Name box write `pets`. Click the Create button.
+
+![](images/deploy.png) 
+
+You should see a success message:
+
+```
+Creating network pets_default
+Creating service pets_web
+```
+
+Your `pets` application stack is now deployed and live! It's running as a single stateless container and serving up a web page. 
+
+2. Go to Resources and click on the stack that you just deployed. You will see that we deployed a service called `pets_web` and a network called `pets_default`. Click on the `pets_web` service and you will see all of the configured options for this service. Some of these are taken from our compose file and some are default options.
+
+![](images/stack.png) 
+
+3. Go to Resources / Networks and you will see that a new overlay network called `pets_default` now exists.
+
+4. On the bottom of the `pets_web` page, UCP will show what ports it is exposing the application on. In your browser go to the public IP of one of your worker nodes and the port that is listed `<public-ip>:<published-port>`.
+
+![](images/published-port.png) 
+
+In your browser you should now see the deployed Docker Pets app. It serves up an image of different pets. Click on "Serve Another Pet" and it will reload the picture.
+
+![](images/single-container-deploy.png) 
+
+### <a name="task2.2"></a>Task 2.2: Scaling Services
+
+So far we have deployed a service as a single container. Our application will need some level of redundancy in case there is a crash or node failure, so we are going to scale the `web` service so that it's made of multiple containers running on different hosts.
+
+1. Go to Resources / Services / `pets_web`/ Scheduling. Edit the Scale parameter and change it from `1` to `3`. Click the checkmark and then Save Changes. After a few moments on the Services page we can see that the Status will change to `3/3` as the new container is scheduled and deployed in the cluster. Click on `pets_web` / Tasks. It shows the nodes where our `web` containers were deployed on. 
+
+![](images/tasks.png) 
+
+2. Now go back to the application `<public-ip>:<published-port>` in your browser. Click Server Another Pet a few times to see the page get reloaded. You should see the Container ID changing between three different values. UCP is automatically load balancing your requests between the three containers in the `pets_web` service.
+
+### <a name="task2.3"></a>Task 2.3: Deploying the Visualizer App
+
+Now we are going to deploy a second service along with our Docker Pets application. It's called the Visualizer and it visually shows how containers are scheduled across a UCP cluster.
+
+Now we are going to update the `pets` stack with the following compose file. We have added a couple things to this compose file.
+
+```
+version: '3.1'
+services:
+    web:
+        image: chrch/paas:1.1
+        deploy:
+            replicas: 3
+        ports:
             - 5000
-            - ```
+        healthcheck:
+            interval: 10s
+            timeout: 2s
+            retries: 3   
+            
+    visualizer:
+        image: manomarks/visualizer
+        ports:
+            - 8080
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+```
+
+- `replicas: 3` defines how many identical copies of a service container we want UCP to schedule. 
+- `visualizer:` is a second service we are going deploy as a part of this stack. 
+- `constraints: [node.role == manager]` is a scheduling requirement we are applying so that the `visualizer` is only scheduled on the manager node.
+- `- /var/run/docker.sock:/var/run/docker.sock` is a host-mounted volume we are mounting inside our container. This volume is being used so that the `visualizer` can communicate directly with the local docker engine.
+
+1. Go to Resources / Stacks & Applilcations / Deploy. Paste the above compose file text into the box under Application Definition with the title `pets`. You should see the following output:
+
+```
+Updating service pets_web (id: vyp6gx092d1o6z7t2wy996i7u)
+Creating service pets_visualizer
+```
+
+The `pets_visualizer` service is created and our existing `pets_web` service is updated. Because no `pets_web` parameters were changed in this compose file, there are no actions done to the `web` containers.
+
+2. Go to the `<external-ip>:<port>` that is listed on the page of the 	`pets_visualizer` service in your browser window. This shows you the nodes of your UCP cluster and where containers are scheduled. You should see that the `pets_web` container is evenly distributed across your nodes.
+
+![](images/visualizer.png) 
+
+3. Now go to Resources / Stacks & Applications. Click on the `pets` stack / Actions / Remove Stack. Confirm the removal. You have just removed all of the containers and also the networks that were created when the stack was first deployed.
+
+### <a name="task2.4"></a>Task 2.4: Self-Healing Applications with UCP
+
+Now that we have a redundant application that we can view with the Visualizer, we are going to simulate a failure to test UCP's ability to heal applications. We will shut off one of the Docker engines. This will simulate a node failure.
+
+1. Bring the Visualizer app up. Make note of how the `pets` containers are scheduled across your hosts.
+
+2. Log in to the commandline of the `ucp-worker-1` node. Shut the Docker engine off with the following command.
+
+```
+$ sudo service docker stop
+docker stop/waiting
+```
+
+3. Now watch the visualizer app in your browser. You will see one of the nodes go red, indicating that UCP has detected a node failure. Any containers on this node will now get rescheduled on to other nodes. Since we defined it in our compose file with `replicas: 3`, UCP will ensure that we always have `3` copies of the `web` container running in our cluster.
+
+![](images/node-kill.png) 
+
+4. Now return `ucp-worker-1` to a healthy state by turning the Docker engine on again.
+
+```
+$ sudo service docker start
+docker start/running, process 22882
+```
+
+5. Finally, decommission this `pets` stack by clicking on `pets` / Actions / Remove Stack.
 
 
+## <a name="task3"></a>Task 3: Deploying a Complex Multi-Service Application
+
+In this task we are going to add another service to the stack. Up to this point the Docker Pets application was a set of stateless web servers. Now we are going to add a persistent backend that will enhance the functionality of the application. We will use `consul` as a redundant backend which will store persistent data for our app, distributed across a set of nodes.
+
+The resulting application will have 3 `web` frontend containers and 3 `db` consul containers. A backend network will be deployed for secure communication between `web` and `db`. The app is exposing HTTP endpoints for different services on ports `5000` and `7000`. UCP will publish these ports on each node in the UCP cluster. Application traffic to any of the external ports will get load balanced to healthy containers.
 
 
+![](images/pets-dev-arch.png) 
 
-**Goal:** Application Deployment Operations
+### <a name="task3.1"></a>Task 3.1: Deploying a Stateful Service 
 
-* Deploy NGINX on application LB node (`dac-lb-2`) to be used to route application traffic to worker nodes
-	* NGINX needs to listen on ports 80/443 and forward to standard HRM ports (80/443).
-	*  Reconfigure `app-nginx.conf` config file available in this directory with your setup's info by substituting `MANAGER_IP` in the config file. Then launch the nginx container using `docker run -d -p 80:80 -p 443:443 --restart=unless-stopped --name app-lb -v ${PWD}/app-nginx.conf:/etc/nginx/nginx.conf:ro nginx:stable-alpine`
-	* Deploy the Pets as a Service App as follows:
+In this step we will deploy a new compose file that adds functionality on top of the previous compose files.
 
-#### Environment Requirements
-- Docker Engine 17.03 EE
-- UCP 2.1.x
-- Minimum 2x hosts
-- 2x DNS names for pets.* and admin.pets.*
-- Ports open for app
+```
+version: '3.1'
+services:
+    web:
+        image: chrch/paas:1.1
+        deploy:
+            replicas: 3
+        ports:
+            - 5000
+            - 7000
+        healthcheck:
+            interval: 10s
+            timeout: 2s
+            retries: 3
+        environment:
+            DB: 'db'
+        networks:
+        	  - backend
+            
+    db:
+        image: consul:0.7.2
+        command: agent -server -ui -client=0.0.0.0 -bootstrap-expect=3 -retry-join=db -retry-join=db -retry-join=db -retry-interval 5s
+        deploy:
+            replicas: 3
+        ports:
+            - 8500 
+        environment:
+            CONSUL_BIND_INTERFACE: 'eth2'
+            CONSUL_LOCAL_CONFIG: '{"skip_leave_on_interrupt": true}'
+        networks: 
+            - backend
+            
+    visualizer:
+        image: manomarks/visualizer
+        ports:
+            - 8080
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+    
+networks:
+	 backend:
+```
 
+- `- 7000` is exposing a second port on our application. This port will serve traffic to administrate the app.
+- `environment:` defines environment variables that are set inside the container. In this compose file we are setting `DB=db`. Our backend service is named `db` so we are passing in the service name to the front end `web` service. During operations, built-in Docker DNS will resolve the service name to the IPs of the service's containers.
+- `image: consul:0.7.2` is the image and version for our backend data persistence store. We are deploying 3 replicas for a highly available backend.
+- `command:` is passing a specific command line argument to the consul image.
+- `networks: backend:` defines an overlay network that both `web` and `db` will connect to to communicate.
 
-#### Configuring Secrets
-- PaaS uses a secret to access the Admin Console so that votes can be viewed. Before we deploy Paas, the UCP administrator has to create a secret in UCP.  Adjust the [pets-prod-compose.yml](https://github.com/mark-church/docker-paas/blob/master/pets-prod-compose.yml) file so that it matches the name of your secret. The environment variable `ADMIN_PASSWORD_FILE` must match the location and name of your secret. The default in the compose file is `ADMIN_PASSWORD_FILE=/run/secrets/admin_password` if your secret is named `admin_password`. Use whatever secret you like. If your secret is named `mysecret` then the value of `ADMIN_PASSWORD_FILE` would be `/run/secrets/mysecret`.
+1. Deploy the `pets` stack again with the above compose file. 
 
+2. Once all the service tasks are up go to the `web` service externally published `<ip>:<port>` that maps to the internal port `5000`. The Docker Pets app is written to take advantage of the stateful backend. Now it gives you the capability to cast a vote for your favorite pet. The vote will be stored by the `db` service along with the number of visits to the application.
 
-#### Configuring HRM
-- Configure the `pets-prod-compose.yml` with the correct HTTP Routing URLs. Replace `<pets-ip>` and `<admin-console-ip>` with the values `pets.app<team>.dac.dckr.org` and `admin.app<team>.dac.dckr.org`. Replace `<team>` with your team.
-
-![](images/secret.png) 
-
-#### Deploying with Compose
-- Now deploy the application with your compose file, [pets-prod-compose.yml](https://github.com/mark-church/docker-paas/blob/master/pets-prod-compose.yml) in UCP as a Docker stack.
-
-- Check the stack's service status and the logs for the `web` service. It will take up to 30 seconds for the app to become operational. Try going to one of the ports or URLs that the app is running on. You will see the event in the `web` service.
-
-![](images/logs.png) 
-
-#### Load Balancing 
-- If DNS and HRM (L7 load balancing) are configured correctly you can access on the configured URL or the ephemeral port chosen by UCP. You can set your `/etc/hosts` file to provide the resolution for the URL set in the compose file.
-
-![](images/HRM.png) 
-
-- Access the PaaS client page. Input your name and vote for a specific animal.
-
-
+3. Submit your name and vote to the app.
 
 ![](images/voting.png) 
 
+After you cast your vote you will get redirected back to the pets landing page. 
 
-- Reload the page to serve new animals by pressing `Serve Another Pet`. See that you are being load balanced between multiple containers. The container ID will switch between the number of container in the `web` service, illustrating the Docker Routing Mesh.
+4. Refresh the page a few times with Server Another Pet. You will see the page views climb while you get served across all three `web` containers.
 
-- Feel free to hit `Vote Again` if you wish to change your vote.
-
-![](images/animal.png) 
-
-- Log in to the admin console using the URL or port exposed by UCP. Use the secret password specified in Step 1.
-
-![](images/login.png) 
-
-- Now view the votes!
+5. Now go to the `web` service externally published `<ip>:<port>` that maps to the internal port `7000`. This page totals the number of votes that are held in the `db` backend.
 
 ![](images/results.png) 
 
-#### Sticky Sessions
-- You may have noticed that the voting page load balances across the web container IDs. When you go to the Admin console, you will notice that the container ID presented is the same every time. That is because UCP is using the `sticky_sessions` option of the L7 load balancer. 
+### <a name="task3.2"></a>Task 3.2: Configuring Application Secrets
 
-- Try going to the port that is exposed by the Admin Console. The port can be found in the UCP GUI when clicking on the `web` service. Go to this port log in with your secret. Refresh the Admin Console page couple times and you should see the container ID changing. This is because you are accessing it through the L4 port which does not have `sticky_sessions` enabled.
+Secrets are any data that an application uses that is sensitive in nature. Secrets can be PKI certificates, passwords, or even config files. UCP handles secrets as a special class of data. Docker secrets are encrypted them at rest, sent to containers through TLS, and are mounted inside containers in a memory-only file that is never stored on disk. 
 
-#### Scaling and Deploying Application Instances
-- View how the application has been scheduled across nodes with the "Swarm Visualizer." It's running as the `pets-viz` container and you can see what port it's exposed on in the UCP GUI.
+Before we can configure our compose file to use a secret, we have to create the secret so it can be stored in the encrypted UCP key-value store. 
 
-![](images/viz.png) 
+TODO
 
-- Scale the application by changing the replicas parameter for the `paas_web` service to `6`. In `pets-viz` we can see additional nodes get scheduled. Back in the application you can see that `Serve Another Pet` is now load balancing you to more containers.
+1. PaaS uses a secret to access the Admin Console so that votes can be viewed. Before we deploy Paas, the UCP administrator has to create a secret in UCP.  Adjust the [pets-prod-compose.yml](https://github.com/mark-church/docker-paas/blob/master/pets-prod-compose.yml) file so that it matches the name of your secret. The environment variable `ADMIN_PASSWORD_FILE` must match the location and name of your secret. The default in the compose file is `ADMIN_PASSWORD_FILE=/run/secrets/admin_password` if your secret is named `admin_password`. Use whatever secret you like. If your secret is named `mysecret` then the value of `ADMIN_PASSWORD_FILE` would be `/run/secrets/mysecret`.
 
-![](images/scaling.png) 
+### <a name="task3.3"></a>Task 3.3: Using Healthchecks to Control Application Lifecycle
 
-- Now initiate a rolling deployment. For the `pets_web` service change the following paramaters and click `Save Changes`
-   - Image `chrch/paas:1.1-broken`
+The Docker Pets application is built with a `/health` endpoint to advertise it's own health on port `5000`. Docker uses this endpoint to manage the lifecycle of the application.
+
+1. View the application health by going to `<ip>:<port>/health` in your browser. You can use the `ip` of any of your UCP nodes. The `port` must be the external port that publishes the internal port `5000`.
+
+You should receive an `OK` message indicating that this particular container is healthy.
+
+2. Now use your browser and go to the `<ip>:<port>/kill` URL. This will toggle the health to unhealthy for one of the `web` containers. 
+
+You should receive a message similar to:
+```
+You have toggled web instance 87660acc389c to unhealthy
+```
+
+3. Go to the Visualizer in your browser. You will see the healthcheck on one of the containers go to red. After a few more moments UCP will kill the container and reschedule another one. A default grace period is applied to allow existing application traffic to drain from this container. This simulates an application failure that is recovered by UCP.
+
+
+
+### <a name="task3.4"></a>Task 3.4: Upgrading with a Rolling Update
+
+A rolling update is a deployment method to slowly and incrementally update a series of containers with a new version in a way that does not cause downtime for the entire application. One by one, UCP will update containers and check the application health for any issues. If the deployment begins to fail in any way, a rollback can be applied to return the app to the last known working configuration.
+
+In the following steps we will update the `pets_web` service with a new image version. We will use a purposely broken image to simulate a bad deployment. 
+
+1. Click on the `pets_web` service. On the Details page change the image to  `chrch/paas:1.1-broken`. Make sure to click the green check so that the change is captured.
+
+2. On the Scheduling page update the following values:
    - Update Parallelism `1`
    - Update Delay `5`
-   - Failure Action `Pause`
-   - Max Failure Ratio `0.2` (20%)
+   - Failure Action `pause`
+   - Max Failure Ratio `0.2` (%)
 
-- Look at the visualizer and you will see that the health checks never pass for this image. Watch for up to 30 seconds. Now go back to the UCP GUI and click on `pets_web`. You will see that the rollout has been paused because the rollout has passed the failure threshold of 20%. Now initiate a rolling deployment again, but this time use the image `chrch/paas:1.1b`
+These values mean that during a rolling update, containers will be updated `1` container at a time `5` seconds apart. If more than `20%` of the new containers fail their health checks then UCP will `pause` the rollout and wait for administrator action.
 
+3. The changes you made are now staged but have not yet been applied. Click Save Changes. This will start the rolling update.
+
+4. Now view the Visualizer app in your browser. You will see that the `chrch/paas:1.1-broken` image is rolled out to a single container but it fails to pass it's health check. This passes the rolling update failure ratio and triggers a pause of the rolling update.
+
+![](images/paas-broken.png)
+
+5. In UCP, click on the `pets_web` service. You will see the status of the update is now paused because of a failed health check.
+
+![](images/pause.png)
+
+6. In the Details page of `pets_web` click Actions / Rollback. This will automatically rollback the `pets_web` service to the last working image.
  
+![](images/rollback.png)
 
-#### Managing the Application Lifecycle
-- Check that the application health check is working by going to `/health`. This health check endpoint is advertising the health of the application. UCP uses this health metric to manage the lifecycle of services and will kill and reschedule applications that have been unhealthy.
+7. Repeat step 1 but this time use the image `chrch/paas:1.2`.
 
-![](images/health.png)
+8. Repeat step 2 with the same values and click Save Changes.
 
-- Toggle the health check to be unhealthy by going to `/kill`. This URL will make the `/health` endpoint of one of the `web` containers return `unhealthy`. Now return to the web browser to see that one of the containers has toggled to unhealthy. Continue to refresh and see what happens. The container will be killed and rescheduled by Swarm automatically. It will be replaced by a new `web` container.
-
-![](images/kill.png) 
-
-- Now go to one of your worker nodes and kill the worker engine with `sudo service docker stop`. In the swarm visualizer you will see the node dissappear and the engines will be rescheduled on the remaining nodes.
-
-# Lab 4
-
-**Goal:** Install and configure highly available DTR
-
-* Deploy HAPROXY on LB node for DTR (`dac-lb-1`)
-	* HAPROXY needs to listen on ports 80/443 and forward to non-standard port of UCP. Please use port *12391* for HTTP and *12392* for  HTTPS.
-	*  Reconfigure `dtr-haproxy.cfg` config file available in this directory with your setup's info by substituting `MANAGER_IP` in the config file. The launch the haproxy container using `docker run -d -p 443:443 -p 8181:8181 --restart=unless-stopped --name ucp-lb -v ${PWD}/dtr-haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro haproxy:1.7-alpine haproxy -d -f /usr/local/etc/haproxy/haproxy.cfg`
-* Install DTR Version `2.2.2`
-	* Install three DTR replicas on the Manager nodes
-	* Make sure to use correct external url. This should be your DTR's FQDN. 
-	* Make sure to use non-standard ports *12391* for HTTP and *12392* for  HTTPS for **each** replica using the `--replica-http-port` and `--replica-https-port` flags.
-* Configure external cert and confirm you can establish HTTPS using your browser.
-* Configure Storage Backend.
-	* Minio, an S3 Compatible Object storage, is configured already on the `dac-services` node. Please use the following configuration to set it up.
-	* Go to $DAC_SERVICES_PUBLIC_IP>:9000
-	* Create a Bucket (lower right corner) and call it `dtr`
-	* Go back to DTR URL, and go to **Settings** > **Storage**.
-	* Select S3 and provide the required parameters. Make sure to use your own `dac-services` private IP as the **Region Endpoint** Here's a sample configuration:
-	![](images/minio.png)
-	* Confirm your configuration worked:
-		* Create your first repository under the `admin` namespace.
-		* Perform a `docker login` from your local Docker client.
-		* Perform a docker push to confirm that storage backend is configured. 
-* Set up Docker Security Scanning 
-* Backup DTR
-	* [Documentation](https://docs.docker.com/datacenter/dtr/2.2/guides/admin/backups-and-disaster-recovery/)
-* Upgrade DTR to 2.2.3
-* Redeploy the Pets App using images on DTR
-	* Create the repos on DTR
-	* Set up Docker Security Scanning for the images
-	* Push the images to DTR
-	* Redeploy the application by updating the images (`docker service update`)
-
-
-* Finally, ensure that you have a fully functioning DTR cluster composed of three replicas, configured with proper external certs, object storage, and the Pets app is deployed using DTR-based images.
-
-
-
-
+9. Observe a succesful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health.
 
