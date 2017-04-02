@@ -30,7 +30,7 @@ In this lab you will deploy an application on UCP that takes advantage of some o
 >   * [Task 3.1: Deploying a Stateful Service ](#task3.1)
 >   * [Task 3.2: Configuring Application Secrets](#task3.2)
 >   * [Task 3.3: Using Healthchecks to Control Application Lifecycle](#task3.3)
->   * [Task 3.4: Upgrade to application version 1.1](#task3.4)
+>   * [Task 3.4: Upgrading with a Rolling Update](#task3.4)
 
 ## Document conventions
 
@@ -108,7 +108,7 @@ It will take up to 30 seconds to install.
 
 Now go to your browser and type in the public IP of this host in the address bar. You should be redirected to a login page. Log in as the user `admin` with the password that you supplied in step 3.
 
-TODO picture
+![](images/ucp-login.png) 
 
 You now have a UCP cluster with a single node. Next you are going to add two nodes to the cluster. These nodes are known as Worker nodes and are the nodes that host application containers. 
 
