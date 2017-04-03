@@ -59,7 +59,7 @@ The following task will guide you through how to create a UCP cluster on your ho
 1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
 
 ```
-$ ssh -i <indentity file> ubuntu@<ducp-0 public ip>
+$ ssh -i <identity file> ubuntu@<ducp-0 public ip>
 ```
 
 2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
@@ -140,7 +140,7 @@ This indicates that this node is now joining your UCP cluster.
 
 8. Go to the UCP GUI and click on Resources / Nodes. You should now see that all of your nodes listed with their respective role as Manager or Worker.
 
-Congratulations! You have succesfully installed and deployed a full UCP cluster. You are now ready to move on to the rest of the lab.
+Congratulations! You have successfully installed and deployed a full UCP cluster. You are now ready to move on to the rest of the lab.
 
 ## <a name="Task 2"></a>Task 2: Deploying a Simple Application with Compose
 
@@ -181,7 +181,7 @@ services:
 
 ### <a name="task2.1"></a>Task 2.1: Okay, Let's Deploy!
 
-1. Log in to your UCP GUI and go to Resources / Stacks & Applilcations / Deploy. Paste the above compose file text into the box under Application Definition. In the Application Name box write `pets`. Click the Create button.
+1. Log in to your UCP GUI and go to Resources / Stacks & Applications / Deploy. Paste the above compose file text into the box under Application Definition. In the Application Name box write `pets`. Click the Create button.
 
 ![](images/deploy.png) 
 
@@ -254,7 +254,7 @@ services:
 - `constraints: [node.role == manager]` is a scheduling requirement we are applying so that the `visualizer` is only scheduled on the manager node.
 - `- /var/run/docker.sock:/var/run/docker.sock` is a host-mounted volume we are mounting inside our container. This volume is being used so that the `visualizer` can communicate directly with the local docker engine.
 
-1. Go to Resources / Stacks & Applilcations / Deploy. Paste the above compose file text into the box under Application Definition with the title `pets`. You should see the following output:
+1. Go to Resources / Stacks & Applications / Deploy. Paste the above compose file text into the box under Application Definition with the title `pets`. You should see the following output:
 
 ```
 Updating service pets_web (id: vyp6gx092d1o6z7t2wy996i7u)
@@ -440,5 +440,5 @@ These values mean that during a rolling update, containers will be updated `1` c
 
 8. Repeat step 2 with the same values and click Save Changes.
 
-9. Observe a succesful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health.
+9. Observe a successful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health.
 
