@@ -99,7 +99,7 @@ Now you have a Docker image for building the app, which you can share on a publi
 
 With the builder image you can build any ASP.NET application, you just need to prepare a `docker run` command which mounts the host directories into the container and specifies the MSBuild script to run. 
 
-The [build.ps1](v1-src/ProductLaunch/build.ps1) script for version 1 of the app is very simple, it just builds the web project from the expected source location, and publishes to the expected output location. On your lab VM, change to the `v1-src` directory and run a contaienr to build the web app:
+The [build.ps1](v1-src/ProductLaunch/build.ps1) script for version 1 of the app is very simple, it just builds the web project from the expected source location, and publishes to the expected output location. On your lab VM, change to the `v1-src` directory and run a container to build the web app:
 
 ```
 cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src
@@ -206,7 +206,7 @@ docker run -d -p 80:80 `
 
 If you run `docker container ls` now, you'll see two containers - one running SQL Server and one running the WebForms app. The SQL Server container doesn't expose any ports, because the web container can connect to it through the Docker network, SQL doesn't need to be publicly available.
 
-The web container publishes port 80 to the host so you can access the website externally. On your laptop browse to the address of the lab VM and you'll see the product lanuch website:
+The web container publishes port 80 to the host so you can access the website externally. On your laptop browse to the address of the lab VM and you'll see the product launch website:
 
 ![Product launch v1 website](images/app-v1.png)
 
