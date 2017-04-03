@@ -50,7 +50,7 @@ The following task will guide you through how to build your app from a Dockerfil
 1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
 
 ```
-$ ssh -i <indentity file> ubuntu@<ducp-0 public ip>
+$ ssh -i <identity file> ubuntu@<ducp-0 public ip>
 ```
 
 2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
@@ -118,7 +118,7 @@ CMD python app.py & python admin.py
 
 Our Dockerfile includes a couple notable lines:
 
-- `FROM alpine:3.4` indicates that our applicaiton is based off of an Alpine OS base image.
+- `FROM alpine:3.4` indicates that our Application is based off of an Alpine OS base image.
 - `RUN apk` & `RUN pip` lines install software packages on top of the base OS that our applications needs.
 - `ADD / /app` adds the application code into the image.
 
