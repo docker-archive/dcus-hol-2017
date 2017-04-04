@@ -12,19 +12,16 @@ In this lab you will integrate Docker Enterprise in to your development pipeline
 >
 > * [Prerequisites](#prerequisites)
 > * [Task 1: Build a Docker Application](#task1)
->   * [Task 1.1: Inspect the App Source](#task1.1)
+>   * [Task 1.1: Inspect the Application Source](#task1.1)
 >   * [Task 1.2: Build the Application Image](#task1.2)
->   * [Task 1.3: Deploy the App Locally](#task1.3)
+>   * [Task 1.3: Deploy the Application Locally](#task1.3)
 > * [Task 2: Pushing and Scanning Docker Images](#task2)
 >   * [Task 2.1: Creating a Repo](#task2.1)
->   * [Task 2.2: Pushing to DTR](#task2.2)
->   * [Task 2.3: Deploying the Visualizer App](#task2.3)
->   * [Task 2.4: Self-Healing Applications](#task2.4)
-> * [Task 3: Remediating a Security Vulnerability](#task3)
->   * [Task 3.1: Deploying a Stateful Service ](#task3.1)
->   * [Task 3.2: Configuring Application Secrets](#task3.2)
->   * [Task 3.3: Using Healthchecks to Control Application Lifecycle](#task3.3)
->   * [Task 3.4: Upgrading with a Rolling Update](#task3.4)
+>   * [Task 2.2: Pushing to the Docker Trusted Registry](#task2.2)
+> * [Task 3: Remediating Application Vulnerabilities](#task3)
+>   * [Task 3.1: Rebuild the Image](#task3.1)
+>   * [Task 3.2: Rescan the Remediated Application](#task3.2)
+
 
 ## Document conventions
 
@@ -40,12 +37,7 @@ This lab requires an instance of Docker Trusted Registry. This lab provides DTR 
 
 In addition to DTR, this lab requires a node with Docker EE 17.03+ installed. You will use this node to build and deploy your application.
 
-
-## <a name="task1"></a>Task 1: Build and Running a Docker Application
-The following task will guide you through how to build your app from a Dockerfile.
-
-### <a name="task1.1"></a>Task 1.1: Inspect the App Source
-
+These steps describe how to log in to your development node:
 
 1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
 
@@ -56,27 +48,35 @@ $ ssh -i <indentity file> ubuntu@<ducp-0 public ip>
 2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
 
 ```
-$ docker version
+~$ docker version
 Client:
- Version:      17.03.0-ee-1
- API version:  1.26
+ Version:      17.03.1-ee-2
+ API version:  1.27
  Go version:   go1.7.5
- Git commit:   9094a76
- Built:        Wed Mar  1 01:20:54 2017
+ Git commit:   ad495cb
+ Built:        Tue Mar 28 19:23:18 2017
  OS/Arch:      linux/amd64
 
 Server:
- Version:      17.03.0-ee-1
- API version:  1.26 (minimum version 1.12)
+ Version:      17.03.1-ee-2
+ API version:  1.27 (minimum version 1.12)
  Go version:   go1.7.5
- Git commit:   9094a76
- Built:        Wed Mar  1 01:20:54 2017
+ Git commit:   ad495cb
+ Built:        Tue Mar 28 19:23:18 2017
  OS/Arch:      linux/amd64
  Experimental: false
  
 ```
 
-3. Clone your application from the [GitHub repo.](https://github.com/mark-church/docker-pets) Go to the `/web` directory. This is the directory that holds the source for our application.
+
+## <a name="task1"></a>Task 1: Build and Running a Docker Application
+The following task will guide you through how to build your application from a Dockerfile.
+
+### <a name="task1.1"></a>Task 1.1: Inspect the App Source
+
+
+
+1. Clone your application from the [GitHub repo](https://github.com/mark-church/docker-pets) with `git`. Go to the `/web` directory. This is the directory that holds the source for our application.
 
 ```
 $ git clone https://github.com/mark-church/docker-pets
@@ -86,8 +86,8 @@ $ cd docker-pets/web
 Inspect the directory.
 
 ```
-$ ls
-Dockerfile  admin.py    app.py      static/     templates/
+~/docker-pets/web $ ls
+admin.py  app.py  Dockerfile  static  templates
 ```
 
 - `admin.py` & `app.py` are the source code files for our Python application.
@@ -95,12 +95,10 @@ Dockerfile  admin.py    app.py      static/     templates/
 - `Dockerfile` is the configuration file we will use to build our app.
 
 
-4. Inspect contents of the `Dockerfile`.
-
-
+2. Inspect contents of the `Dockerfile` for the web frontend image.
 
 ```
-$ cat Dockerfile
+~/docker-pets/web $ cat Dockerfile
 FROM alpine:3.4
 
 RUN apk --no-cache add py-pip libpq python-dev curl
@@ -124,10 +122,10 @@ Our Dockerfile includes a couple notable lines:
 
 ### <a name="task1.2"></a>Task 1.2: Build the Application Image
 
-1. Build the image from the Dockerfile. You are going to specify an image tag `web-app` that you will reference this image by later. The `.` in the command indicates that you are building from the current directory. Docker will automatically build off of any file in the directory named `Dockerfile`.
+1. Build the image from the Dockerfile. You are going to specify an image tag `docker-pets` that you will reference this image by later. The `.` in the command indicates that you are building from the current directory. Docker will automatically build off of any file in the directory named `Dockerfile`.
 
 ```
-$ docker build -t web-app --no-cache .
+~/docker-pets/web $ docker build -t docker-pets .
 Sending build context to Docker daemon 26.55 MB
 Step 1/7 : FROM alpine:3.4
  ---> baa5d63471ea
@@ -145,16 +143,17 @@ It should not take more than a minute to build the image.
 
 You will now deploy the image locally to ensure that it works. Before you do this you need to turn Swarm mode on in your engine so that we can take advantage of Docker Services.
 
-1. Establish a Swarm.
+1. Return to the `docker-pets` directory and establish a Swarm.
 
 ```
-$ docker swarm init
+~/docker-pets/web $ cd ..
+~/docker-pets $ docker swarm init
 ```
 
 Confirm that you now have a Swarm cluster of a single node.
 
 ```
-$ docker node ls
+~/docker-pets $ docker node ls
 ID                           HOSTNAME  STATUS  AVAILABILITY  MANAGER STATUS
 fd3ovikiq7tzmdr70zukbsgbs *  moby      Ready   Active        Leader
 ```
@@ -162,7 +161,7 @@ fd3ovikiq7tzmdr70zukbsgbs *  moby      Ready   Active        Leader
 2. Deploy your application from the compose file. In the `/docker-pets` directory there is a compose file that you will use to deploy this application. You will deploy your application stack as `pets`.
 
 ```
-$ docker stack deploy -c pets-dev-compose.yml pets
+~/docker-pets $ docker stack deploy -c pets-dev-compose.yml pets
 Creating network pets_backend
 Creating service pets_web
 Creating service pets_db
@@ -182,27 +181,27 @@ In this lab, DTR has already been set up for you so you will log in to it and us
 
 1. Log in to DTR. Before the lab you should have been assigned a cluster and a username. Use these when logging in.
 
-Go to `<cluster-name>.dtr.dckr.org` and login with your given username and password. You should see the DTR home screen.
+Go to `<cluster-name>.dockerdemos.com` and login with your given username and password. You should see the DTR home screen.
 
 ![](images/dtr-home.png) 
 
-2. Before you can push an image to DTR you must create a repository. Click on Repositories / New repository. For account, pick your username. The repository will be `web-app` (the same as the image name). Give it a simple description and mark the repo as Private. This will make the repo visible only to those that are granted access (which right now is only you). Ensure that "Scan on Push" is checked to On. When this is checked, images pushed to this repo will be scanned for vulnerabilities automatically.
+2. Before you can push an image to DTR you must create a repository. Click on Repositories / New repository. For account, pick your username. The repository will be `docker-pets` (the same as the image name). Give it a simple description and mark the repo as Private. This will make the repo visible only to those that are granted access (which right now is only you). Ensure that "Scan on Push" is checked to On. When this is checked, images pushed to this repo will be scanned for vulnerabilities automatically.
 
 ![](images/dtr-repo.png) 
 
-3. Click Save. If you click on the `<account>/web-app` repo you'll see that it is empty as we have not pushed any images to it yet.
+3. Click Save. If you click on the `<account>/docker-pets` repo you'll see that it is empty as we have not pushed any images to it yet.
 
 
-### <a name="Task 2.1"></a>Task 2.2: Pushing to DTR
+### <a name="Task 2.1"></a>Task 2.2: Pushing to the Docker Trusted Registry
 
 Next we will push our local image to DTR. First we will need to authenticate with DTR so that our local engine trusts it. We will use a simple tool that pulls certificates from DTR to our development node.
 
 1. Run the following command. Insert the name of your assigned cluster in the command.
 
 ```
-$ docker run -it --rm \
+~/docker-pets $ docker run -it --rm \
   -v /etc/docker:/etc/docker \
-  mbentley/trustdtr <cluster>.dtr.dckr.org
+  mbentley/trustdtr <cluster>.dockerdemos.com
 Using the root CA certificate for trusting DTR
 Adding certificate to '/etc/docker/certs.d/dtr.church.dckr.org/ca.crt'...done
 Verifying format of certificate...done
@@ -211,23 +210,23 @@ Verifying format of certificate...done
 2. Log in to DTR with your username.
 
 ```
-$ docker login <cluster>.dtr.dckr.org
+~/docker-pets $ docker login <cluster>.dockerdemos.com
 Username: <username>
 Password:
 Login Succeeded
 ```
   
-3. Tag your image with the name registry and repo you are pushing to. Input your username and cluster.
+3. Tag your image with the name registry and repo you are pushing to. Input your username and cluster. We are going to add the version tag `1.0` to the image.
 
 ```
-$ docker tag web-app:1.0 <cluster>.dtr.dckr.org/<username>/web-app:1.0
+~/docker-pets $ docker tag docker-pets <cluster>.dockerdemos.com/<username>/docker-pets:1.0
 ```
 
 4. Push your image to DTR.
 
 ```
-$ docker push <cluster>.dtr.dckr.org/<username>/web-app:1.0
-The push refers to a repository [dtr.church.dckr.org/mark/web-app]
+~/docker-pets $ docker push <cluster>.docker-pets/<username>/docker-pets:1.0
+The push refers to a repository [dtr.church.dckr.org/mark/docker-pets]
 273eb8eab1c9: Pushed
 7d68ed329d0d: Pushed
 02c1439e0fdc: Pushed
@@ -235,6 +234,78 @@ The push refers to a repository [dtr.church.dckr.org/mark/web-app]
 1.0: digest: sha256:809c6f80331b9d03cb099b43364b7801826f78ab36b26f00ea83988fbefb6cac size: 1163
 ```
 
-5. Go to the DTR GUI and go to your `web-app` repo. You should see that your image has been pushed and a security vulnerability scan has started on it.
+5. Go to the DTR GUI and click on your `docker-pets` repo. The image vulnerability scan should have started already and DTR will display the status of the scan. Once the scan is complete, DTR will display the number of vulnerabilities found. For the `docker-pets` image a critical vulnerability was found.
 
-6.
+![](images/scan-status.png) 
+
+6. Click on View details. The Layers tab shows the results of the scan. The scan is able to identify the libraries that are installed as a part of each layer.
+
+![](images/layers.png) 
+
+7. Click on Components. The Components tab lists out all of the libraries in the image, arranged from highest to least severity. The CVE is shown in addition to the usage license of the component. If you click on the CVE link it will take you to the official description of the vulnerability.
+
+![](images/components.png) 
+
+## <a name="task3"></a>Task 3: Remediating Application Vulnerabilities
+
+We have built and pushed our application to DTR. DTR image scanning identified a vulnerability and now we are going to remediate the vulnerability and push the image again.
+
+### <a name="Task 3.1"></a>Task 3.1: Rebuild the Image
+
+We identified that our application has the known vulnerability `CVE-2016-8859`. We can see in the Layers tab that the affected package `musl 1.1.14-r14` is located in the top layer of our image. This is the base layer that was specified in the Dockerfile as `FROM alpine:3.4`. To remediate this we are going to use a more recent version of the `alpine` image, one that has this vulnerability fixed.
+
+1. Go to the `~/docker-pets/web` directory and edit the Dockerfile.
+
+```
+~/docker-pets/web $ vi Dockerfile
+```
+
+2. Change the top line `FROM alpine:3.4` to `FROM alpine:3.6`. `alpine:3.6` is  newer version of the base OS that has this vulnerability fixed.
+
+3. Rebuild the image. This time we are going to use the tag `2.0`
+
+```
+~/docker-pets/web $ docker build -t docker-pets:2.0 .
+```
+
+4. Tag the image as the `latest` and also with the DTR URL.
+
+```
+~/docker-pets/web $ docker push <cluster>.docker-pets/<username>/docker-pets:2.0
+
+~/docker-pets/web $ docker push <cluster>.docker-pets/<username>/docker-pets:latest
+```
+
+5. Re-deploy the image locally to ensure that the change did not break the app.
+
+```
+~/docker-pets $ docker stack deploy -c pets-dev-compose.yml pets
+Updating service pets_db (id: nv2lehghp7p6dpx0e57rur570)
+Updating service pets_web (id: 3f3lerya83x6a3zapc706yg23)
+unable to pin image docker-pets to digest: errors:
+denied: requested access to the resource is denied
+unauthorized: authentication required
+```
+The error message is expected and is only printed because we are deploying from a local image that is not in the public registry.
+
+6. Go to your browser and in the address pane type in `<node-public-ip`>:5000`. You should see that the app has succesfully deployed with the new change.
+
+### <a name="Task 3.2"></a>Task 3.2: Rescan the Remediated Application
+
+We have now remediated the fix and verified that the new version works when deployed locally. Next we will push the image to DTR again so that it can be scanned and pulled by other services for additional testing.
+
+1. Push the new image to DTR.
+
+```
+~/docker-pets $ docker push <cluster-id>.dockerdemos.com/<username>/docker-pets:2.0
+```
+
+2. Go to the DTR UI and wait for the scan to complete. Once the scan has completed DTR will report that the vulnerability no longer exists in this image. The image is now ready for use by the rest of your team!
+
+
+Congratulations! You just built an application, discovered a security vulnerability, and patched it in just a few easy steps. Pat yourself on the back for helping create safer apps!!
+
+
+
+
+
