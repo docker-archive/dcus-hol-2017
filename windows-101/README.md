@@ -196,7 +196,7 @@ Docker has built the image but it's only stored on the local machine. Next we'll
 
 ## <a name="task2.2"></a>Task 2.2: Push your image to Docker Hub
 
-Distribution is built into the Docker platform. You can build images locally and push them to a [registry](https://docs.docker.com/registry/), making them available to other users. Anyone with access cna pull that image and run a container from it. The behavior of the app in the container will be the same for everyone, because the image contains the fully-configured app - the only requirements to run it are Windows and Docker.
+Distribution is built into the Docker platform. You can build images locally and push them to a [registry](https://docs.docker.com/registry/), making them available to other users. Anyone with access can pull that image and run a container from it. The behavior of the app in the container will be the same for everyone, because the image contains the fully-configured app - the only requirements to run it are Windows and Docker.
 
 [Docker Hub](https://hub.docker.com) is the public registry for Docker images. You can push your website image to the Hub, and later in the lab we'll pull it on other servers and run it on a cluster. To push images, you need to log in using the command line and providing your Docker ID credentials:
 
@@ -245,12 +245,12 @@ Go ahead and hit the button to Tweet about your lab progress! No data gets store
 
 Your app is packaged in a portable Docker image, and you can rebuild it any time with a simple script. You've shared it on Docker Hub and deployed it on a cloud server, but at the moment you just have a single VM serving your app. That doesn't give you high availability, and for a tier 1 app like this you'll want to avoid downtime if there are any issues with the VM.
 
-Docker supports failover and scaling with a clustering technology built righ into the engine - [Docker swarm mode](https://docs.docker.com/engine/swarm/). You don't need anything extra to turn a set of machines into a highly-available cluster, just Windows and Docker. In the rest of this lab you'll set up a swarm of three VMs and deploy the web app on the swarm.
+Docker supports failover and scaling with a clustering technology built right into the engine - [Docker swarm mode](https://docs.docker.com/engine/swarm/). You don't need anything extra to turn a set of machines into a highly-available cluster, just Windows and Docker. In the rest of this lab you'll set up a swarm of three VMs and deploy the web app on the swarm.
 
  
 ## <a name="task3.1"></a> Task 3.1: Create a Docker swarm with Windows Server nodes
 
-There are two server roles in a Docker swarm - managers and workers. You'll make the VM you've use so far the manager as a reward for all the work it's done. Strat by clearing down running containers again:
+There are two server roles in a Docker swarm - managers and workers. You'll make the VM you've use so far the manager as a reward for all the work it's done. Start by clearing down running containers again:
 
 ```
 docker container kill $(docker container ls -a -q)
@@ -322,7 +322,7 @@ When you've joined the second and third VMs to the swarm, you can close the RDP 
 
 Swarm mode is an orchestration engine - you use it to deploy highly-available, scalable, distributed solutions. You don't run containers in swarm mode - instead you create services and specify the number of replicas each service should have. Replicas are just containers, but the swarm decides which node to create them on, based on the capacity of the nodes when more containers are needed.
 
-You can run your web app as a highly available service by specifiying three replicas:
+You can run your web app as a highly available service by specifying three replicas:
 
 ```
 docker service create `
@@ -358,7 +358,7 @@ That lets you update the version of your application, and also the version of th
 
 Your host Windows servers will also need updating, and that can be more invasive - updates may be compute intensive, reducing the workload capacity of the server, and they may require a reboot. Docker swarms have a graceful feature for dealing with that. If you need to do maintenance on a server, you can change its availability and Docker will stop any running containers and take the node out of service.
 
-Try that with the thrid VM in your swarm. In PowerShell on the manager node, run:
+Try that with the third VM in your swarm. In PowerShell on the manager node, run:
 
 ```
 docker node update --availability drain <vm-name>
@@ -377,7 +377,7 @@ pjaehhsj8xbp         \_ tweet-app.3     sixeyed/dockercon-tweet-app:latest   win
 
 You can see here that the replica running on `win-node02` in my cluster is in the `Shutdown` state, because that's the node I've put into drain mode. You'll also see the swarm is trying to create a new replica on another node (`win-node00` in my case, the new replica is in `Ready` state). The swarm tries to maintain the service level of three replicas, but the new container will fail to start because the published port is not available on that node.
 
-While the node is in drain mode, you can run `sconfig` to start a Windows Update, or update the Docker engine. When your maintenance is done, you can put the node back into action by updating its availabilty from the manager node:
+While the node is in drain mode, you can run `sconfig` to start a Windows Update, or update the Docker engine. When your maintenance is done, you can put the node back into action by updating its availability from the manager node:
 
 ```
 docker node update --availability active <vm-name>

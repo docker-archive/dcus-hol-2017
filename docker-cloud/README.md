@@ -1,11 +1,11 @@
-# Lab XX: Continous Integration With Docker Cloud
+# Lab XX: Continuous Integration With Docker Cloud
 
 
 > **Difficulty**: Beginner
 
 > **Time**: Approximately 20 minutes
 
-> In this lab you will deploy a web application using Docker Cloud's CI pipelin. You will complete the following tasks as part of the lab:
+> In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
 
 > - [Task 0: Configure the prerequisites](#prerequisits)
 - [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
@@ -43,12 +43,12 @@ To create a Docker ID:
 
 1. Use your web browser to visit [`https://cloud.docker.com`](https://cloud.docker.com)
 
-2. On the right hand side of the screen providie your preferred Docker ID, supply your email address, and choose a password
+2. On the right hand side of the screen provide your preferred Docker ID, supply your email address, and choose a password
 
 
 3. Click `Sign up`
 
-4. Check your email (**including your spam folder**) for a confirmatino email
+4. Check your email (**including your spam folder**) for a confirmation email
 
 5. Follow the steps outlined in the email.
 
