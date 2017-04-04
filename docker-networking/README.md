@@ -425,7 +425,7 @@ The `ID` and `HOSTNAME` values may be different in your lab. The important thing
 
 Now that you have a Swarm initialized it's time to create an **overlay** network.
 
-Create a new overlay network called "overnet" by running `docker network create -d overlay overnet` on **node1**.
+Create a new overlay network called "overnet" by running `docker network create -d overlay overnet` on **node0-a**.
 
 ```
 $ docker network create -d overlay overnet
@@ -686,7 +686,7 @@ Now that you have a working service using an overlay network, let's test service
 
 If you are not still inside of the container on **node0-a**, log back into it with the `docker exec -it <CONTAINER ID> /bin/bash` command.
 
-Run `cat /etc/resolv.conf` form inside of the container on **node1**.
+Run `cat /etc/resolv.conf` form inside of the container on **node0-a**.
 
 ```
 $ docker exec -it d676496d18f7 /bin/bash
