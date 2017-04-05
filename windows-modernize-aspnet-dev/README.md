@@ -294,6 +294,17 @@ The message handler will run in a Docker container too. The [Dockerfile](v2-src/
 
 ## <a name="task3.3"></a> Task 3.3: Running the distributed solution with Docker Compose
 
+First, `cd C:\scm\github\`.
+
+```
+cd C:\scm\github\
+```
+
+Then `git clone https://github.com/jweissig/v2-src.git`.
+
+```
+git clone https://github.com/jweissig/v2-src.git
+```
 You need to run the builder image to compile the solution, and then build new Docker images for the web application and the message handler. The [build.ps1](v2-src/build.ps1) script does that for you:
 
 ```
