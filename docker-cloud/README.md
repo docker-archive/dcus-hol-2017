@@ -5,19 +5,20 @@
 
 > **Time**: Approximately 20 minutes
 
-> In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
+In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
 
 > - [Task 0: Configure the prerequisites](#prerequisits)
-- [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
-  - [Task 1.1: Configure Docker Cloud autobuilds](#autobuild)
-  - [Task 1.2: Test autobuilds](#test_autobuild)
+> - [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
+>  - [Task 1.1: Configure Docker Cloud autobuilds](#autobuild)
+>  - [Task 1.2: Test autobuilds](#test_autobuild)
 
 
 ## What is Docker Cloud?
 
 Docker Cloud is Docker's cloud platform to build, ship and run your containerized applications. Docker Cloud enables teams to come together to collaborate on their projects and to automate complex continuous delivery flows. So you can focus on working and improving your app, and leave the rest up to Docker Cloud.
 
-##Document conventions
+## Document conventions
+
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
 For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh labuser@v111node0-adaflds023asdf-23423kjl.appnet.com`
@@ -68,16 +69,19 @@ Continue with the lab as soon as you have completed the prerequisites.
 
 One of the most powerful features of Docker Cloud is the ability to define end-to-end CI/CD pipelines. In this part of the lab you're going to link your GitHub account to Docker Cloud to facilitate seamless application delivery.
 
-In order to complete this step you'll need to:
-- be logged in to GitHub
-- have Docker Cloud linked to your GitHub account
-- have `git` installed on your *management host*
+Let's start by linking your Docker Cloud account to your GitHub account
 
-To link Docker Cloud with GitHub, click the **Cloud Settings** link in the menu on the left hand side of the Docker Cloud web UI. Scroll down to the **Source providers** section. Click the **power plug** icon and follow the procedure to link your GitHub account.
+1. Using your web browser got to <a href="https://cloud.docker.com">https://cloud.docker.com</a> and sign in
+
+1. Click the **Cloud Settings** link in the menu on the left hand side of the Docker Cloud web UI. 
+
+> **Note**: If you cannot see menu on the left, un-select **Swarm Mode** at the top of the screen
+
+1. Scroll down to the **Source providers** section. Click the **power plug** icon next to GitHub, and follow the procedure to link your GitHub account.
 
 ![](./images/power_socket.jpg)
 
-Now that you've got Docker Cloud linked to your GitHub account We'll start by forking a demo repo.
+Now that you've got Docker Cloud linked to your GitHub account we'll start by forking a demo repo.
 
 1. In your web browser navigate to <a href="https://github.com/Cloud-Demo-Team/voting-demo.git"> https://github.com/Cloud-Demo-Team/voting-demo.git</a>.
 
@@ -122,28 +126,33 @@ In this step you're going to build two GitHub repositories - one for the **votin
 
 	+ **Name**: results
 	+ **Description**: Results service for the Docker voting app
+	+ Click "Create"
 
-4. Under **Build Settings** you should see that your GitHub account is connected. Click the **GitHub icon**. 
+4. Under **Builds** tab you should see that your GitHub account is connected. Click the **GitHub icon**. 
 
-7. Make sure the appropriate organization is populated from the drop down list, and select **voting-demo** for repository
+5. Make sure the appropriate organization is populated from the drop down list, and select **voting-demo** for repository
 
-9. Click **Click here to customize the build settings**
+6. Under **Build Location** select the **Build on Docker Cloud’s infrastructure using a** radio button then select **small** from the drop down.
 
-10. Under **Dockerfile path** enter **/results/Dockerfile** 
+7. Under **Dockerfile location** enter **/results/Dockerfile** 
 
-10. Click **Create** at the bottom of the page.
+8. Click **Save and Build** at the bottom of the page.
 
   You will be taken back to your repository page
 
 ### Create a second repository
-Repeat steps 1-11 with the following modifications:
+Repeat steps 1-8 with the following modifications:
 
   Create Repo (Step 3)
   + **Name**: voting
   + **Description**: Voting service for the Docker voting app
+  + Click "Create"
 
 Specifying the Dockerfile path (Step 7)
   + Enter **/voting/Dockerfile** for the **Dockerfile Path**
+
+### Check to make sure the repositories were created
+If you click the **Repositories** menu on the left you should see both the ```voting``` and ```results``` respositories were created. 
 
 Well done! You've created two new repos and configured them to autobuild whenever new changes are pushed to the associated GitHub repos.
 
@@ -151,11 +160,9 @@ Well done! You've created two new repos and configured them to autobuild wheneve
 
 Switch back the command line of your VM. 
 
-> **Note**: If you are not in the `voting-demo` directory that was created when you cloned the repo earlier, change into it now.
+1. Change to the directory containing the voting app. 
 
-1. Change to the voting directory
-
-		$ cd voting
+		$ cd ~/voting-demo/voting
 
 2. Use vi or your favorite text editor to open `app.py`
   + To use `vi` on Linux: `$ vi app.py`
@@ -186,6 +193,8 @@ Switch back the command line of your VM.
 		To https://github.com/<your github repo>/voting-demo.git
    		c1788a1..2ab640a  master -> master
        ```
+> **Note:** You may be prompted to set your email and name when you attempt to commit your changes. If this is the case, simply follow the instructions provided on your screen
+> 
 > **Note:** If you have two factor authentication (2FA) configured on your GitHub account you will need to enter your personal access token (PAT) instead of your password when prompted.
 
 6. In the Docker Cloud web UI, navigate back to the **voting** repo and notice that the status is **BUILDING**.
@@ -195,8 +204,6 @@ Switch back the command line of your VM.
 	![](images/building.png)
 
 1. Click the **Timeline** tab near the top of the screen
-
-	![](images/timeline.png)
 
 1. Click `Build in master:/voting`
 

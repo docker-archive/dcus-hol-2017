@@ -160,10 +160,29 @@ Have a look at the [Dockerfile for the lab](tweet-app/Dockerfile), which builds 
 
 ## <a name="task2.1"></a>Task 2.1: Build a custom website image
 
-The Docker platform has the capability to build, ship and run software. To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
+The Docker platform has the capability to build, ship and run software.
+
+First, `cd C:\scm\github\`.
 
 ```
-cd C:\scm\github\docker\dcus-hol-2017\windows-101\tweet-app
+cd C:\scm\github\
+```
+
+Then `git clone https://github.com/jweissig/tweet-app.git`.
+
+```
+git clone https://github.com/jweissig/tweet-app.git
+```
+
+Then `cd tweet-app`
+
+```
+cd C:\scm\github\tweet-app\
+```
+
+To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
+
+```
 docker build -t <DockerID>/dockercon-tweet-app .
 ```
 
