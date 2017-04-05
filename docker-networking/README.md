@@ -27,7 +27,7 @@ You will be asked to SSH into various nodes. These nodes are referred to as **no
 
 This lab requires two Linux nodes with Docker 17.03 (or higher) installed.
 
-Also, please make sure you can connect ssh into the Linux nodes. If you haven't already done so, please SSH in to **node0-a** and **node1-b**.
+Also, please make sure you can SSH into the Linux nodes. If you haven't already done so, please SSH in to **node0-a** and **node1-b**.
 
 ```
 $ ssh ubuntu@<node0-a IP address>
