@@ -5,7 +5,7 @@
 
 > **Time**: Approximately 20 minutes
 
-> In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
+In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
 
 > - [Task 0: Configure the prerequisites](#prerequisits)
 > - [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
@@ -17,7 +17,8 @@
 
 Docker Cloud is Docker's cloud platform to build, ship and run your containerized applications. Docker Cloud enables teams to come together to collaborate on their projects and to automate complex continuous delivery flows. So you can focus on working and improving your app, and leave the rest up to Docker Cloud.
 
-##Document conventions
+## Document conventions
+
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
 For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh labuser@v111node0-adaflds023asdf-23423kjl.appnet.com`
