@@ -8,9 +8,9 @@
 > In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
 
 > - [Task 0: Configure the prerequisites](#prerequisits)
-- [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
-  - [Task 1.1: Configure Docker Cloud autobuilds](#autobuild)
-  - [Task 1.2: Test autobuilds](#test_autobuild)
+> - [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
+>  - [Task 1.1: Configure Docker Cloud autobuilds](#autobuild)
+>  - [Task 1.2: Test autobuilds](#test_autobuild)
 
 
 ## What is Docker Cloud?
