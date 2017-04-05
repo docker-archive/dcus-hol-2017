@@ -115,7 +115,7 @@ You now have a UCP cluster with a single node. Next you are going to add two nod
 ### <a name="Task 1.2"></a>Task 1.2: Joining UCP Worker Nodes
 
 
-5. In the UCP GUI, click through to Resources / Nodes. Click "+ Add Node" and then click "Copy to Clipboard."
+1. In the UCP GUI, click through to Resources / Nodes. Click "+ Add Node" and then click "Copy to Clipboard."
 
 The string you copied will look something like the following:
 
@@ -125,7 +125,7 @@ docker swarm join --token SWMTKN-1-5mql67at3mftfxdhoelmufv0f50id358xyyeps4gk9odg
 
 This is a Swarm join token. It is a secret token used by nodes so that they can securely join the rest of the UCP cluster.
  
-6. Log in to one of your remaining nodes. On the command line run the Swarm join token command you copied from UCP. You will get a status message indicating that this node has joined the cluster.
+2. Log in to one of your remaining nodes. On the command line run the Swarm join token command you copied from UCP. You will get a status message indicating that this node has joined the cluster.
 
 ```
 $ docker swarm join \
@@ -136,9 +136,9 @@ This node joined a swarm as a worker.
 
 This indicates that this node is now joining your UCP cluster.
 
-7. Repeat step 6 for all of your remaining nodes.
+3. Repeat steps 1 & 2 for all of your remaining nodes.
 
-8. Go to the UCP GUI and click on Resources / Nodes. You should now see that all of your nodes listed with their respective role as Manager or Worker.
+4. Go to the UCP GUI and click on Resources / Nodes. You should now see that all of your nodes listed with their respective role as Manager or Worker.
 
 Congratulations! You have successfully installed and deployed a full UCP cluster. You are now ready to move on to the rest of the lab.
 
@@ -155,7 +155,7 @@ A [Docker Stack](https://docs.docker.com/engine/reference/commandline/stack_depl
 
 In this section we will deploy the [Docker Pets](https://github.com/mark-church/docker-paas) application using a compose file. In the following sections we will add features to our compose file and make our application progressively more complex and feature-full. Docker Pets is a simple web app that records votes for different animals and uses a persistent backend to record the votes. It's comprised of two images:
 
-- **`chrch/paas`** is a front-end Python Flask container that serves up random images of housepets, depending on the given configuration
+- **`chrch/docker-pets`** is a front-end Python Flask container that serves up random images of housepets, depending on the given configuration
 - **`consul`** is a back-end KV store that stores the number of visits that the web services recieve. It's configured to bootstrap itself with 3 replicas so that we have fault tolerant persistence.
 
 This is the first iteration of our compose file for the Docker Pets application:
@@ -164,7 +164,7 @@ This is the first iteration of our compose file for the Docker Pets application:
 version: '3.1'
 services:
     web:
-        image: chrch/paas:1.1
+        image: chrch/docker-pets:latest
         ports:
             - 5000
         healthcheck:
@@ -175,7 +175,7 @@ services:
 
 - `version: '3.1'` is the version of the compose format we are using.
 - `web:` is the name that we are giving this service.
-- `image: chrch/paas:1.1` defines the image and version that we are deploying in this service.
+- `image: chrch/docker-pets:1.1` defines the image and version that we are deploying in this service.
 - `ports:` configures the ports that we expose for our application. Our application listens on port `5000` so we are exposing port `5000` internally and mapping it to a random ephemeral port externally. UCP will take care of the port mapping and application load balancing for us.
 - `healthcheck:` defines the health check for our application. We are setting the `interval` for how often the check runs and how many `timeouts` we allow before we consider the container to be unhealthy.
 
@@ -228,7 +228,7 @@ Now we are going to update the `pets` stack with the following compose file. We 
 version: '3.1'
 services:
     web:
-        image: chrch/paas:1.1
+        image: chrch/docker-pets:latest
         deploy:
             replicas: 3
         ports:
@@ -254,7 +254,11 @@ services:
 - `constraints: [node.role == manager]` is a scheduling requirement we are applying so that the `visualizer` is only scheduled on the manager node.
 - `- /var/run/docker.sock:/var/run/docker.sock` is a host-mounted volume we are mounting inside our container. This volume is being used so that the `visualizer` can communicate directly with the local docker engine.
 
-1. Go to Resources / Stacks & Applications / Deploy. Paste the above compose file text into the box under Application Definition with the title `pets`. You should see the following output:
+1. Go to Resources / Stacks & Applications / Deploy. Paste the above compose file text into the box under Application Definition with the title `pets`. 
+
+![](images/deploy2.png) 
+
+You should see the following output:
 
 ```
 Updating service pets_web (id: vyp6gx092d1o6z7t2wy996i7u)
@@ -267,20 +271,20 @@ The `pets_visualizer` service is created and our existing `pets_web` service is 
 
 ![](images/visualizer.png) 
 
-3. Now go to Resources / Stacks & Applications. Click on the `pets` stack / Actions / Remove Stack. Confirm the removal. You have just removed all of the containers and also the networks that were created when the stack was first deployed.
 
 ### <a name="task2.4"></a>Task 2.4: Self-Healing Applications with UCP
 
 Now that we have a redundant application that we can view with the Visualizer, we are going to simulate a failure to test UCP's ability to heal applications. We will shut off one of the Docker engines. This will simulate a node failure.
 
-1. Bring the Visualizer app up. Make note of how the `pets` containers are scheduled across your hosts.
+1. Bring the Visualizer app up in your browser. Make note of how the `pets` containers are scheduled across your hosts. They should be distributed equally across all hosts.
 
-2. Log in to the commandline of the `ucp-worker-1` node. Shut the Docker engine off with the following command.
+2. Log in to the commandline of one of your worker nodes (be sure not to do this to the manager node). Shut the Docker engine off with the following command.
 
 ```
 $ sudo service docker stop
 docker stop/waiting
 ```
+This will turn off the Docker engine and bring down all of the containers on this host.
 
 3. Now watch the visualizer app in your browser. You will see one of the nodes go red, indicating that UCP has detected a node failure. Any containers on this node will now get rescheduled on to other nodes. Since we defined it in our compose file with `replicas: 3`, UCP will ensure that we always have `3` copies of the `web` container running in our cluster.
 
@@ -293,7 +297,9 @@ $ sudo service docker start
 docker start/running, process 22882
 ```
 
-5. Finally, decommission this `pets` stack by clicking on `pets` / Actions / Remove Stack.
+5. Finally, decommission this `pets` stack in the UCP GUI by clicking on `pets` / Actions / Remove Stack. Confirm the removal. You have just removed all of the containers and also the networks that were created when the stack was first deployed.
+
+![](images/removal.png) 
 
 
 ## <a name="task3"></a>Task 3: Deploying a Complex Multi-Service Application
@@ -313,7 +319,7 @@ In this step we will deploy a new compose file that adds functionality on top of
 version: '3.1'
 services:
     web:
-        image: chrch/paas:1.1
+        image: chrch/docker-pets:latest
         deploy:
             replicas: 3
         ports:
@@ -377,21 +383,92 @@ After you cast your vote you will get redirected back to the pets landing page.
 
 ![](images/results.png) 
 
+6. If you go to the `visualizer` service in your browser you will now see that a redundant Consul KV store is deployed on the Swarm. It's storing the votes for the application.
+
 ### <a name="task3.2"></a>Task 3.2: Configuring Application Secrets
 
 Secrets are any data that an application uses that is sensitive in nature. Secrets can be PKI certificates, passwords, or even config files. UCP handles secrets as a special class of data. Docker secrets are encrypted them at rest, sent to containers through TLS, and are mounted inside containers in a memory-only file that is never stored on disk. 
 
 Before we can configure our compose file to use a secret, we have to create the secret so it can be stored in the encrypted UCP key-value store. 
 
-TODO
+1. In the UCP GUI go to Resources / Secrets / +Create Secret. Name your secret `admin_password`. Enter the secret password of your choice and click Create.
 
-1. PaaS uses a secret to access the Admin Console so that votes can be viewed. Before we deploy Paas, the UCP administrator has to create a secret in UCP.  Adjust the [pets-prod-compose.yml](https://github.com/mark-church/docker-paas/blob/master/pets-prod-compose.yml) file so that it matches the name of your secret. The environment variable `ADMIN_PASSWORD_FILE` must match the location and name of your secret. The default in the compose file is `ADMIN_PASSWORD_FILE=/run/secrets/admin_password` if your secret is named `admin_password`. Use whatever secret you like. If your secret is named `mysecret` then the value of `ADMIN_PASSWORD_FILE` would be `/run/secrets/mysecret`.
+
+![](images/secret-create.png) 
+
+This secret will now be stored encrypted in the UCP data store. When applications request access to it, the secret will be sent encrypted to the container and mounted in a memory-only file on the host.
+
+2. Update the `pets` stack with the following compose file.
+
+```
+version: '3.1'
+services:
+    web:
+        image: chrch/docker-pets:latest
+        deploy:
+            replicas: 3
+        ports:
+            - 5000
+            - 7000
+        healthcheck:
+            interval: 10s
+            timeout: 2s
+            retries: 3
+        environment:
+            DB: 'db'
+            ADMIN_PASSWORD_FILE: '/run/secrets/admin_password'
+        networks:
+        	  - backend
+        secrets:
+            - admin_password
+            
+    db:
+        image: consul:0.7.2
+        command: agent -server -ui -client=0.0.0.0 -bootstrap-expect=3 -retry-join=db -retry-join=db -retry-join=db -retry-interval 5s
+        deploy:
+            replicas: 3
+        ports:
+            - 8500 
+        environment:
+            CONSUL_BIND_INTERFACE: 'eth2'
+            CONSUL_LOCAL_CONFIG: '{"skip_leave_on_interrupt": true}'
+        networks: 
+            - backend
+
+            
+    visualizer:
+        image: manomarks/visualizer
+        ports:
+            - 8080
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+    
+networks:
+	 backend:
+
+secrets:
+    admin_password:
+        external: true
+```
+
+We have made two additions to this compose file:
+
+- `ADMIN_PASSWORD_FILE:` is an environment variable that tells the `web` service that the secret will be stored at the location `/run/secrets/admin_password`
+- `secrets: admin_password` references the secret that we created in UCP. UCP will send the secret to the `web` containers wherever they are scheduled.
+
+3. Now go to the `<host-ip>:<port>` on the `pets_web` service that is mapped to the internal port `7000`. This is the administrator consul that displays the votes. It should be protected by a password now. Use the secret you entered as the `admin_password`.
+
+![](images/password.png)
+
 
 ### <a name="task3.3"></a>Task 3.3: Using Healthchecks to Control Application Lifecycle
 
 The Docker Pets application is built with a `/health` endpoint to advertise it's own health on port `5000`. Docker uses this endpoint to manage the lifecycle of the application.
 
-1. View the application health by going to `<ip>:<port>/health` in your browser. You can use the `ip` of any of your UCP nodes. The `port` must be the external port that publishes the internal port `5000`.
+1. View the application health by going to `<host-ip>:<port>/health` in your browser. You can use the `ip` of any of your UCP nodes. The `port` must be the external port that publishes the internal port `5000`.
 
 You should receive an `OK` message indicating that this particular container is healthy.
 
@@ -412,7 +489,7 @@ A rolling update is a deployment method to slowly and incrementally update a ser
 
 In the following steps we will update the `pets_web` service with a new image version. We will use a purposely broken image to simulate a bad deployment. 
 
-1. Click on the `pets_web` service. On the Details page change the image to  `chrch/paas:1.1-broken`. Make sure to click the green check so that the change is captured.
+1. Click on the `pets_web` service. On the Details page change the image to  `chrch/docker-pets:broken`. Make sure to click the green check so that the change is captured.
 
 2. On the Scheduling page update the following values:
    - Update Parallelism `1`
@@ -420,11 +497,13 @@ In the following steps we will update the `pets_web` service with a new image ve
    - Failure Action `pause`
    - Max Failure Ratio `0.2` (%)
 
+![](images/rolling.png)
+
 These values mean that during a rolling update, containers will be updated `1` container at a time `5` seconds apart. If more than `20%` of the new containers fail their health checks then UCP will `pause` the rollout and wait for administrator action.
 
 3. The changes you made are now staged but have not yet been applied. Click Save Changes. This will start the rolling update.
 
-4. Now view the Visualizer app in your browser. You will see that the `chrch/paas:1.1-broken` image is rolled out to a single container but it fails to pass it's health check. This passes the rolling update failure ratio and triggers a pause of the rolling update.
+4. Now view the Visualizer app in your browser. You will see that the `chrch/docker-pets:broken` image is rolled out to a single container but it fails to pass it's health check. The second `chrch/docker-pets:broken` container will start failing afterwards which will trigger the rolling update to pause.
 
 ![](images/paas-broken.png)
 
@@ -436,9 +515,12 @@ These values mean that during a rolling update, containers will be updated `1` c
  
 ![](images/rollback.png)
 
-7. Repeat step 1 but this time use the image `chrch/paas:1.2`.
+7. Repeat step 1 but this time use the image `chrch/docker-pets:2.0`.
 
 8. Repeat step 2 with the same values and click Save Changes.
 
-9. Observe a successful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health.
+9. Observe a successful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health. Now go to the `<host-ip>:<port>` that corresponds to the internal port `5000`. After a couple refreshes you should see that some of the containers have already updated.
+
+
+### Congratulations, you have completed the lab!!
 
