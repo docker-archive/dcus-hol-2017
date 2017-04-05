@@ -43,7 +43,13 @@ $ ssh ubuntu@<node1-b IP address>
 
 ## <a name="list_networks"></a>Step 1: The Docker Network Command
 
-The `docker network` command is the main command for configuring and managing container networks. Run the `docker network` command from any of your lab machines.
+If you haven't already done so, please SSH in to **node0-a**.
+
+```
+$ ssh ubuntu@<node0-a IP address>
+```
+
+The `docker network` command is the main command for configuring and managing container networks. Run the `docker network` command from **node0-a**.
 
 ```
 $ docker network
@@ -71,7 +77,7 @@ The command output shows how to use the command as well as all of the `docker ne
 
 ## <a name="list_networks"></a>Step 2: List networks
 
-Run a `docker network ls` command to view existing container networks on the current Docker host.
+Run a `docker network ls` command on **node0-a** to view existing container networks on the current Docker host.
 
 ```
 $ docker network ls
@@ -91,7 +97,7 @@ You can see that each network gets a unique `ID` and `NAME`. Each network is als
 
 The `docker network inspect` command is used to view network configuration details. These details include; name, ID, driver, IPAM driver, subnet info, connected containers, and more.
 
-Use `docker network inspect <network>` to view configuration details of the container networks on your Docker host. The command below shows the details of the network called `bridge`.
+Use `docker network inspect <network>` on **node0-a** to view configuration details of the container networks on your Docker host. The command below shows the details of the network called `bridge`.
 
 ```
 $ docker network inspect bridge
@@ -136,7 +142,7 @@ $ docker network inspect bridge
 
 The `docker info` command shows a lot of interesting information about a Docker installation.
 
-Run a `docker info` command on any of your Docker hosts and locate the list of network plugins.
+Run the `docker info` command on **node0-a** and locate the list of network plugins.
 
 ```
 $ docker info
@@ -162,7 +168,7 @@ The output above shows the **bridge**, **host**,**macvlan**, **null**, and **ove
 
 ## <a name="connect-container"></a>Step 1: The Basics
 
-Every clean installation of Docker comes with a pre-built network called **bridge**. Verify this with the `docker network ls` command.
+Every clean installation of Docker comes with a pre-built network called **bridge**. Verify this with the `docker network ls` command on **node0-a**.
 
 ```
 $ docker network ls
@@ -178,13 +184,13 @@ The output above also shows that the **bridge** network is scoped locally. This 
 
 All networks created with the *bridge* driver are based on a Linux bridge (a.k.a. a virtual switch).
 
-Install the `brctl` command and use it to list the Linux bridges on your Docker host.
+Install the `brctl` command and use it to list the Linux bridges on your Docker host. You can do this by running `sudo apt-get install bridge-utils` on **node0-a**.
 
 ```
 $ sudo apt-get install bridge-utils
 ```
 
-Then, list the bridges on your Docker host.
+Then, list the bridges on your Docker host, by running `brctl show` on **node0-a**.
 
 ```
 $ brctl show
@@ -194,7 +200,7 @@ docker0		8000.024252ed52f7	no
 
 The output above shows a single Linux bridge called **docker0**. This is the bridge that was automatically created for the **bridge** network. You can see that it has no interfaces currently connected to it.
 
-You can also use the `ip` command to view details of the **docker0** bridge.
+You can also use the `ip a` command on **node0-a** to view details of the **docker0** bridge.
 
 ```
 $ ip a
@@ -209,7 +215,7 @@ $ ip a
 
 The **bridge** network is the default network for new containers. This means that unless you specify a different network, all new containers will be connected to the **bridge** network.
 
-Create a new container by running `docker run -dt ubuntu sleep infinity`.
+Create a new container on **node0-a** by running `docker run -dt ubuntu sleep infinity`.
 
 ```
 $ docker run -dt ubuntu sleep infinity
@@ -225,7 +231,7 @@ Status: Downloaded newer image for ubuntu:latest
 846af8479944d406843c90a39cba68373c619d1feaa932719260a5f5afddbf71
 ```
 
-This command will create a new container based on the `ubuntu:latest` image and will run the `sleep` command to keep the container running in the background. You can verify our example container is up by running `docker ps`.
+This command will create a new container based on the `ubuntu:latest` image and will run the `sleep` command to keep the container running in the background. You can verify our example container is up by running `docker ps` on **node0-a**.
 
 ```
 $ docker ps
@@ -235,7 +241,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 As no network was specified on the `docker run` command, the container will be added to the **bridge** network.
 
-Run the `brctl show` command again.
+Run the `brctl show` command again on **node0-a**.
 
 ```
 $ brctl show
@@ -245,7 +251,7 @@ docker0		8000.024252ed52f7	no		vethd630437
 
 Notice how the **docker0** bridge now has an interface connected. This interface connects the **docker0** bridge to the new container just created.
 
-You can inspect the **bridge** network again, by running `docker network inspect bridge`, to see the new container attached to it.
+You can inspect the **bridge** network again, by running `docker network inspect bridge` on **node0-a**, to see the new container attached to it.
 
 ```
 $ docker network inspect bridge
@@ -266,7 +272,7 @@ $ docker network inspect bridge
 
 The output to the previous `docker network inspect` command shows the IP address of the new container. In the previous example it is "172.17.0.2" but yours might be different.
 
-Ping the IP address of the container from the shell prompt of your Docker host by running `ping -c5 <IPv4 Address>`. Remember to use the IP of the container in **your** environment.
+Ping the IP address of the container from the shell prompt of your Docker host by running `ping -c5 <IPv4 Address>` on **node0-a**. Remember to use the IP of the container in **your** environment.
 
 ```
 $ ping -c5 172.17.0.2
@@ -284,7 +290,7 @@ rtt min/avg/max/mdev = 0.031/0.041/0.055/0.011 ms
 
 The replies above show that the Docker host can ping the container over the **bridge** network. But, we can also verify the container can connect to the outside world too. Lets log into the container, install the `ping` program, and then ping `www.docker.com`.
 
-First, we need to get the ID of the container started in the previous step. You can run `docker ps` to get that.
+First, we need to get the ID of the container started in the previous step. You can run `docker ps` on **node0-a** to get that.
 
 ```
 $ docker ps
@@ -292,7 +298,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 846af8479944        ubuntu              "sleep infinity"    7 minutes ago       Up 7 minutes                            heuristic_boyd
 ```
 
-Next, lets run a shell inside that ubuntu container, by running `docker exec -it <CONTAINER ID> /bin/bash`.
+Next, lets run a shell inside that ubuntu container, by running `docker exec -it <CONTAINER ID> /bin/bash` on **node0-a**.
 
 ```
 $ docker exec -it 846af8479944 /bin/bash
@@ -327,7 +333,7 @@ Finally, lets disconnect our shell from the container, by running `exit`.
 root@846af8479944:/# exit
 ```
 
-We should also stop this container so we clean things up from this test, by running `docker stop <CONTAINER ID>`.
+We should also stop this container so we clean things up from this test, by running `docker stop <CONTAINER ID>` on **node0-a**.
 
 ```
 $ docker stop 846af8479944
@@ -342,7 +348,7 @@ In this step we'll start a new **NGINX** container and map port 8080 on the Dock
 
 > **NOTE:** If you start a new container from the official NGINX image without specifying a command to run, the container will run a basic web server on port 80.
 
-Start a new container based off the official NGINX image.
+Start a new container based off the official NGINX image by running `docker run --name web1 -d -p 8080:80 nginx` on **node0-a**.
 
 ```
 $ docker run --name web1 -d -p 8080:80 nginx
@@ -357,7 +363,7 @@ Status: Downloaded newer image for nginx:latest
 4e0da45b0f169f18b0e1ee9bf779500cb0f756402c0a0821d55565f162741b3e
 ```
 
-Review the container status and port mappings by running `docker ps`.
+Review the container status and port mappings by running `docker ps` on **node0-a**.
 
 ```
 $ docker ps
@@ -371,7 +377,7 @@ Now that the container is running and mapped to a port on a host interface you c
 
 To complete the following task you will need the IP address of your Docker host. This will need to be an IP address that you can reach (e.g. your lab is hosted in Azure so this will be the instance's Public IP - the one you SSH'd into). Just point your web browser to the IP and port 8080 of your Docker host. Also, if you try connecting to the same IP address on a different port number it will fail.
 
-If for some reason you cannot open a session from a web broswer, you can connect from your Docker host using the `curl 127.0.0.1:8080` command.
+If for some reason you cannot open a session from a web broswer, you can connect from your Docker host using the `curl 127.0.0.1:8080` command on **node0-a**.
 
 ```
 $ curl 127.0.0.1:8080
@@ -411,9 +417,13 @@ To add a worker to this swarm, run the following command:
 To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
 ```
 
-Copy the entire `docker swarm join ...` command that is displayed as part of the output from your terminal output.
+If you haven't already done so, please SSH in to **node1-b**.
 
-Paste the copied command into the terminal of **node1-b**.
+```
+$ ssh ubuntu@<node0-a IP address>
+```
+
+Copy the entire `docker swarm join ...` command that is displayed as part of the output from your terminal output on **node0-a**. Then, paste the copied command into the terminal of **node1-b**.
 
 ```
 $ docker swarm join \
