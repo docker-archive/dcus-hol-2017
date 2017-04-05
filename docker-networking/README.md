@@ -1,5 +1,7 @@
 # Lab X: Docker Networking
 
+Hi, welcome to the Networking lab for DockerCon 2017!
+
 In this lab you will learn about key Docker Networking concepts. You will get your hands dirty by going through examples of a few basic networking concepts, learn about Bridge and Overlay networking, and finally learning about the Swarm Routing Mesh.
 
 > **Difficulty**: Beginner to Intermediate
@@ -23,8 +25,19 @@ You will be asked to SSH into various nodes. These nodes are referred to as **no
 
 ## <a name="prerequisites"></a>Prerequisites
 
-* Make sure you can connect ssh into the Linux nodes
+This lab requires two Linux nodes with Docker 17.03 (or higher) installed.
 
+Also, please make sure you can connect ssh into the Linux nodes. If you haven't already done so, please SSH in to **node0-a** and **node1-b**.
+
+```
+$ ssh ubuntu@<node0-a IP address>
+```
+
+and 
+
+```
+$ ssh ubuntu@<node1-b IP address>
+```
 
 # <a name="Task 1"></a>Section #1 - Networking Basics
 
@@ -168,13 +181,12 @@ All networks created with the *bridge* driver are based on a Linux bridge (a.k.a
 Install the `brctl` command and use it to list the Linux bridges on your Docker host.
 
 ```
-# Install the brctl tools
-
 $ sudo apt-get install bridge-utils
-<Snip>
+```
 
-# List the bridges on your Docker host
+Then, list the bridges on your Docker host.
 
+```
 $ brctl show
 bridge name	bridge id		STP enabled	interfaces
 docker0		8000.024252ed52f7	no
@@ -670,7 +682,11 @@ Install the ping command and ping the service task running on **node1-b** where 
 
 ```
 root@d676496d18f7:/# apt-get update && apt-get install -y iputils-ping
-<Snip>
+```
+
+Now, lets ping `10.0.0.3`.
+
+```
 root@d676496d18f7:/# ping -c5 10.0.0.3
 PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
 ^C
