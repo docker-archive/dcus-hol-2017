@@ -174,6 +174,12 @@ Then `git clone https://github.com/jweissig/tweet-app.git`.
 git clone https://github.com/jweissig/tweet-app.git
 ```
 
+Then `cd tweet-app`
+
+```
+cd C:\scm\github\tweet-app\
+```
+
 To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
 
 ```
