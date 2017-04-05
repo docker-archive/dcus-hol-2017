@@ -80,7 +80,7 @@ Let's start by linking your Docker Cloud account to your GitHub account
 
 ![](./images/power_socket.jpg)
 
-Now that you've got Docker Cloud linked to your GitHub account We'll start by forking a demo repo.
+Now that you've got Docker Cloud linked to your GitHub account we'll start by forking a demo repo.
 
 1. In your web browser navigate to <a href="https://github.com/Cloud-Demo-Team/voting-demo.git"> https://github.com/Cloud-Demo-Team/voting-demo.git</a>.
 
