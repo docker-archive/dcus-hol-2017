@@ -68,12 +68,15 @@ Continue with the lab as soon as you have completed the prerequisites.
 
 One of the most powerful features of Docker Cloud is the ability to define end-to-end CI/CD pipelines. In this part of the lab you're going to link your GitHub account to Docker Cloud to facilitate seamless application delivery.
 
-In order to complete this step you'll need to:
-- be logged in to GitHub
-- have Docker Cloud linked to your GitHub account
-- have `git` installed on your *management host*
+Let's start by linking your Docker Cloud account to your GitHub account
 
-To link Docker Cloud with GitHub, click the **Cloud Settings** link in the menu on the left hand side of the Docker Cloud web UI. Scroll down to the **Source providers** section. Click the **power plug** icon and follow the procedure to link your GitHub account.
+1. Using your web browser got to <a href="https://cloud.docker.com">https://cloud.docker.com</a> and sign in
+
+1. Click the **Cloud Settings** link in the menu on the left hand side of the Docker Cloud web UI. 
+
+> **Note**: If you cannot see menu on the left, un-select **Swarm Mode** at the top of the screen
+
+1. Scroll down to the **Source providers** section. Click the **power plug** icon next to GitHub, and follow the procedure to link your GitHub account.
 
 ![](./images/power_socket.jpg)
 
@@ -145,17 +148,18 @@ Repeat steps 1-11 with the following modifications:
 Specifying the Dockerfile path (Step 7)
   + Enter **/voting/Dockerfile** for the **Dockerfile Path**
 
+### Check to make sure the repositories were created
+If you click the **Repositories** menu on the left you should see both the ```voting``` and ```results``` respositories were created. 
+
 Well done! You've created two new repos and configured them to autobuild whenever new changes are pushed to the associated GitHub repos.
 
 # <a name="test_autobuild"></a>Task 1.2: Test autobuilds
 
 Switch back the command line of your VM. 
 
-> **Note**: If you are not in the `voting-demo` directory that was created when you cloned the repo earlier, change into it now.
+1. Change to the directory containing the voting app. 
 
-1. Change to the voting directory
-
-		$ cd voting
+		$ cd ~/voting-demo/voting
 
 2. Use vi or your favorite text editor to open `app.py`
   + To use `vi` on Linux: `$ vi app.py`
@@ -186,6 +190,8 @@ Switch back the command line of your VM.
 		To https://github.com/<your github repo>/voting-demo.git
    		c1788a1..2ab640a  master -> master
        ```
+> **Note:** You may be prompted to set your email and name when you attempt to commit your changes. If this is the case, simply follow the instructions provided on your screen
+> 
 > **Note:** If you have two factor authentication (2FA) configured on your GitHub account you will need to enter your personal access token (PAT) instead of your password when prompted.
 
 6. In the Docker Cloud web UI, navigate back to the **voting** repo and notice that the status is **BUILDING**.
