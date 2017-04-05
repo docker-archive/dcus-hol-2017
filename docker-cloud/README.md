@@ -126,25 +126,27 @@ In this step you're going to build two GitHub repositories - one for the **votin
 
 	+ **Name**: results
 	+ **Description**: Results service for the Docker voting app
+	+ Click "Create"
 
-4. Under **Build Settings** you should see that your GitHub account is connected. Click the **GitHub icon**. 
+4. Under **Builds** tab you should see that your GitHub account is connected. Click the **GitHub icon**. 
 
-7. Make sure the appropriate organization is populated from the drop down list, and select **voting-demo** for repository
+5. Make sure the appropriate organization is populated from the drop down list, and select **voting-demo** for repository
 
-9. Click **Click here to customize the build settings**
+6. Under **Build Location** select the **Build on Docker Cloud’s infrastructure using a** radio button then select **small** from the drop down.
 
-10. Under **Dockerfile path** enter **/results/Dockerfile** 
+7. Under **Dockerfile location** enter **/results/Dockerfile** 
 
-10. Click **Create** at the bottom of the page.
+8. Click **Save and Build** at the bottom of the page.
 
   You will be taken back to your repository page
 
 ### Create a second repository
-Repeat steps 1-11 with the following modifications:
+Repeat steps 1-8 with the following modifications:
 
   Create Repo (Step 3)
   + **Name**: voting
   + **Description**: Voting service for the Docker voting app
+  + Click "Create"
 
 Specifying the Dockerfile path (Step 7)
   + Enter **/voting/Dockerfile** for the **Dockerfile Path**
