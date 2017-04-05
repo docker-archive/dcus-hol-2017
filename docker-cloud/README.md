@@ -202,8 +202,6 @@ Switch back the command line of your VM.
 
 1. Click the **Timeline** tab near the top of the screen
 
-	![](images/timeline.png)
-
 1. Click `Build in master:/voting`
 
 	Here you can see the status of the build process
