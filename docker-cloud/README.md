@@ -5,7 +5,7 @@
 
 > **Time**: Approximately 20 minutes
 
-> In this lab you will deploy a web application using Docker Cloud's CI pipelin. You will complete the following tasks as part of the lab:
+> In this lab you will deploy a web application using Docker Cloud's CI pipeline. You will complete the following tasks as part of the lab:
 
 > - [Task 0: Configure the prerequisites](#prerequisits)
 - [Task 1: Configure Docker Cloud to Automatically Build Docker Images](#deploy_app)
