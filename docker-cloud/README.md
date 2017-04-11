@@ -15,7 +15,7 @@ In this lab, you will learn how to configure a continuous integration (CI) pipel
 
 ## What is Docker Cloud?
 
-Docker Cloud is Docker's cloud platform for developers and teams to build, ship, and run containerized applications. Docker Cloud enables teams to come together to collaborate on their projects and automate complex continuous delivery flows. This enables you to focus on improving your app, and leave the rest up to Docker Cloud.
+Docker Cloud is Docker's cloud platform for developers and teams to build, ship, and run containerized applications. Docker Cloud enables teams to come together to collaborate on their projects and automate complex continuous delivery flows, which enables you to focus on improving your app, and leave the rest up to Docker Cloud.
 
 ## Document conventions
 
@@ -74,7 +74,7 @@ Let's start by linking your Docker Cloud account to your GitHub account:
 
 2. Click the **Cloud Settings** link in the menu on the left hand side of the Docker Cloud web UI.
 
-> **Note**: If you cannot see menu on the left, un-select **Swarm Mode** at the top of the screen
+> **Note**: If you cannot see menu on the left, un-select **Swarm Mode** at the top of the screen.
 
 3. Scroll down to the **Source providers** section. Click the **power plug** icon next to GitHub, and follow the procedure to link your GitHub account.
 
@@ -88,15 +88,15 @@ Now that you've got Docker Cloud linked to your GitHub account, we'll start by f
 
 Next, we'll clone the repository into our local Docker environment. The following commands will be executed in the terminal or command window from any one of your supplied VMs (Windows or Linux).
 
-> **Note**: Be sure to be logged on and running the next commands from one of your supplied VMs (either Linux of Windows)
+> **Note**: Be sure to be logged on and running the next commands from one of your supplied VMs (either Linux of Windows).
 
-1. Change to your home directory
+1. Change to your home directory.
 
   `$ cd` (for Linux machines)
 
   `$ cd %userprofile%` (for Windows machines)
 
-2. Clone the repository (you will need to have `git` installed and the `git` binary present in your PATH)
+2. Clone the repository (you will need to have `git` installed and the `git` binary present in your PATH).
 
 		$ git clone https://github.com/<your github user name>/voting-demo.git
 
@@ -133,11 +133,11 @@ In this step, you're going to build two GitHub repositories - one for the **voti
 
 6. Select "Click here to customize the build settings" to configure the build rules.
 
-7. Under **Dockerfile location** enter **/results/Dockerfile** 
+7. Under **Dockerfile location** enter **/results/Dockerfile** .
 
 8. Click **Create** at the bottom of the page.
 
-  You will be taken to the repository page
+  You will be taken to the repository page.
 
 ### Create a second repository
 Repeat steps 1-8 with the following modifications:
@@ -146,7 +146,7 @@ Repeat steps 1-8 with the following modifications:
   + **Name**: voting
   + **Description**: Voting service for the Docker voting app
 
-Specifying the Dockerfile path (Step 7)
+Specify the Dockerfile path (in Step 7):
   + Enter **/voting/Dockerfile** for the **Dockerfile Path**
 
 ### Check to make sure the repositories were created
@@ -162,11 +162,11 @@ Switch back the command line of your VM.
 
 		$ cd ~/voting-demo/voting
 
-2. Use vi or your favorite text editor to open `app.py`
+2. Use vi or your favorite text editor to open `app.py`.
   + To use `vi` on Linux: `$ vi app.py`
   + To use `notepad.exe` on Windows: `$ notepad app.py`
 
-3. Scroll down to find the lines containing `optionA` and `optionB`, and change **Dev** and **Ops** to **Futbol** and **Soccer**
+3. Scroll down to find the lines containing `optionA` and `optionB`, and change **Dev** and **Ops** to **Futbol** and **Soccer**.
 
 		optionA = "Futbol"
 		optionB = "Soccer"
@@ -191,13 +191,13 @@ Switch back the command line of your VM.
 		To https://github.com/<your github repo>/voting-demo.git
    		c1788a1..2ab640a  master -> master
        ```
-> **Note:** You may be prompted to set your email and name when you attempt to commit your changes. If this is the case, simply follow the instructions provided on your screen
+> **Note:** You may be prompted to set your email and name when you attempt to commit your changes. If this is the case, simply follow the instructions provided on your screen.
 > 
 > **Note:** If you have two factor authentication (2FA) configured on your GitHub account you will need to enter your personal access token (PAT) instead of your password when prompted.
 
 6. In the Docker Cloud web UI, navigate back to the **voting** repo and notice that the status is **BUILDING**.
 
-	> **Note**: It can take several minutes for a build job to complete
+	> **Note**: It can take several minutes for a build job to complete.
 
 	![](images/building.png)
 
@@ -205,7 +205,7 @@ Switch back the command line of your VM.
 
 8. Click `Build in master:/voting`.
 
-	Here you can see the status of the build process
+	Here you can see the status of the build process:
 
 	![](images/build_status.png)
 
