@@ -1,6 +1,6 @@
-# Lab X: Deploying Applications with Docker Enterprise
+# Deploying Applications with Docker EE Advanced / Docker Datacenter
 
-In this lab you will deploy an application on UCP that takes advantage of some of the latest features of Docker Datacenter. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
+In this lab you will deploy an application on Universal Control Plane (UCP) that takes advantage of some of the latest features of Docker Datacenter. Docker Datacenter is included with Docker EE Standard and Docker EE Advanced. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
 
 - Docker services
 - Application scaling and failure mitigation

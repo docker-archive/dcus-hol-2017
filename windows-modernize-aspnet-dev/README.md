@@ -1,4 +1,4 @@
-# Lab X: Modernize .NET Apps - for Devs
+# Modernize .NET Apps - for Devs
 
 You can run full .NET Framework apps in Docker using the [Windows Server Core](https://hub.docker.com/r/microsoft/windowsservercore/) base image from Microsoft. That image is a headless version of Windows Server 2016, so it has no UI but it has all the other roles and features available. Building on top of that there are also Microsoft images for [IIS](https://hub.docker.com/r/microsoft/iis/) and [ASP.NET](https://hub.docker.com/r/microsoft/aspnet/), which are already configured to run ASP.NET and ASP.NET 3.5 apps in IIS.
 
@@ -84,10 +84,27 @@ The [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint) i
 
 The build agent is generic, it can be used to compile any .NET 4.5 web projects. You could add more targeting packs from NuGet in the Dockerfile if you want to support different .NET versions. 
 
+First, `cd C:\scm\github\`.
+
+```
+cd C:\scm\github\
+```
+
+Then `git clone https://github.com/jweissig/v1-src.git`.
+
+```
+git clone https://github.com/jweissig/v1-src.git
+```
+
+Then `cd v1-src`
+
+```
+cd C:\scm\github\v1-src\
+```
+
 To build the image, RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and run:
 
 ```
-cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\builder
 docker build -t <DockerID>/modernize-aspnet-builder .
 ```
 
@@ -102,7 +119,7 @@ With the builder image you can build any ASP.NET application, you just need to p
 The [build.ps1](v1-src/ProductLaunch/build.ps1) script for version 1 of the app is very simple, it just builds the web project from the expected source location, and publishes to the expected output location. On your lab VM, change to the `v1-src` directory and run a container to build the web app:
 
 ```
-cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src
+cd C:\scm\github\v1-src
 
 docker run --rm `
  -v $pwd\ProductLaunch:c:\src `
@@ -160,7 +177,7 @@ Docker has its own DNS server which is how containers can find each other by nam
 Lastly the Dockerfile copies in the published website from the builder. Build the image to package up the app:
 
 ```
-cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\web
+cd C:\scm\github\v1-src\docker\web
 docker build -t <DockerID>/modernize-aspnet-web:v1 .
 ```
 
@@ -277,10 +294,21 @@ The message handler will run in a Docker container too. The [Dockerfile](v2-src/
 
 ## <a name="task3.3"></a> Task 3.3: Running the distributed solution with Docker Compose
 
+First, `cd C:\scm\github\`.
+
+```
+cd C:\scm\github\
+```
+
+Then `git clone https://github.com/jweissig/v2-src.git`.
+
+```
+git clone https://github.com/jweissig/v2-src.git
+```
 You need to run the builder image to compile the solution, and then build new Docker images for the web application and the message handler. The [build.ps1](v2-src/build.ps1) script does that for you:
 
 ```
-cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
+cd C:\scm\github\v2-src
 .\build.ps1 <DockerID>
 ```
 
@@ -302,7 +330,7 @@ Now you can stop the containers from the v1 app, and start the new app using Doc
 docker kill $(docker ps -a -q)
 docker rm $(docker ps -a -q)
 
-cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
+cd C:\scm\github\v2-src
 docker-compose up -d
 ```
 
