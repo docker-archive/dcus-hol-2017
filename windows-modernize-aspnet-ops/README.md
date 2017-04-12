@@ -1,4 +1,4 @@
-# Lab X: Modernize .NET Apps - for Ops
+# Modernize .NET Apps - for Ops
 
 You'll already have a process for deploying ASP.NET apps, but it probably involves a lot of manual steps. Work like copying application content between servers, running interactive setup programs, modifying configuration items and manual smoke tests all add time and risk to deployments. 
 

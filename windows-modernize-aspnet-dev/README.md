@@ -1,4 +1,4 @@
-# Lab X: Modernize .NET Apps - for Devs
+# Modernize .NET Apps - for Devs
 
 You can run full .NET Framework apps in Docker using the [Windows Server Core](https://hub.docker.com/r/microsoft/windowsservercore/) base image from Microsoft. That image is a headless version of Windows Server 2016, so it has no UI but it has all the other roles and features available. Building on top of that there are also Microsoft images for [IIS](https://hub.docker.com/r/microsoft/iis/) and [ASP.NET](https://hub.docker.com/r/microsoft/aspnet/), which are already configured to run ASP.NET and ASP.NET 3.5 apps in IIS.
 

@@ -87,6 +87,56 @@ In this lab you will integrate Docker EE Advanced in to your development pipelin
 > * Pushing and Scanning Docker Images
 > * Remediating Application Vulnerabilities
 
+## [Windows Docker Containers 101](https://github.com/docker/dcus-hol-2017/tree/master/windows-101)
+
+Docker runs natively on Windows 10 and Windows Server 2016. In this lab you'll learn how to package Windows applications as Docker images and run them as Docker containers. You'll learn how to create a cluster of Docker servers in swarm mode, and deploy an application as a highly-available service.
+
+> **Difficulty**: Beginner 
+>
+> **Time**: Approximately 30 minutes
+>
+> **Tasks / Concepts**:
+>
+> * Run some simple Windows Docker containers
+> * Package and run a custom app using Docker
+> * Run your app in a highly-available cluster
+
+## [Modernize .NET Apps - for Devs](https://github.com/docker/dcus-hol-2017/tree/master/windows-modernize-aspnet-dev)
+
+You can run full .NET Framework apps in Docker using the [Windows Server Core](https://hub.docker.com/r/microsoft/windowsservercore/) base image from Microsoft. That image is a headless version of Windows Server 2016, so it has no UI but it has all the other roles and features available. Building on top of that there are also Microsoft images for [IIS](https://hub.docker.com/r/microsoft/iis/) and [ASP.NET](https://hub.docker.com/r/microsoft/aspnet/), which are already configured to run ASP.NET and ASP.NET 3.5 apps in IIS.
+
+This lab steps through porting an ASP.NET WebForms app to run in a Docker container on Windows Server 2016. With the app running in Docker, you can easily modernize it - and in the lab you'll add new features quickly and safely by making use of the Docker platform.
+
+> **Difficulty**: Beginner 
+>
+> **Time**: Approximately 35 minutes
+>
+>**Tasks / Concepts**
+>
+> - Package an existing ASP.NET application so it runs in Docker, without any application changes.
+> - Run SQL Server Express in a Docker container, and use it for the application database.
+> - Use a feature-driven approach to address problems in the existing application, without an extensive re-write.
+> - Use the Dockerfile and Docker Compose syntax to replace manual deployment documents.
+
+## [Modernize .NET Apps - for Ops](https://github.com/docker/dcus-hol-2017/tree/master/windows-modernize-aspnet-ops)
+
+You'll already have a process for deploying ASP.NET apps, but it probably involves a lot of manual steps. Work like copying application content between servers, running interactive setup programs, modifying configuration items and manual smoke tests all add time and risk to deployments. 
+
+In Docker, the process of packaging applications is completely automated, and the platform supports automatic update and rollback for application deployments. You can build Docker images from your existing application artifacts, and run ASP.NET apps in containers without going back to source code.
+
+This lab is aimed at ops and system admins. It steps through packaging an ASP.NET WebForms app to run in a Docker container on Windows 10 or Windows Server 2016. It starts with an MSI and ends by showing you how to run and update the application as a highly-available service on Docker swam.
+
+>**Difficulty**: Beginner 
+>
+>**Time**: Approximately 30 minutes
+>
+>**Tasks / Concepts**
+>
+> - Package an existing ASP.NET MSI so the app runs in Docker, without any application changes.
+> - Create an upgraded package with application updates and Windows patches.
+> - Update and rollback the running application in a production environment with zero downtime.
+
+
 ---
 
 ## Contribute Your Own Labs
