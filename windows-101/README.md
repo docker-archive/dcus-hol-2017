@@ -1,4 +1,4 @@
-# Lab X: Windows Docker Containers 101
+# Windows Docker Containers 101
 
 Docker runs natively on Windows 10 and Windows Server 2016. In this lab you'll learn how to package Windows applications as Docker images and run them as Docker containers. You'll learn how to create a cluster of Docker servers in swarm mode, and deploy an application as a highly-available service.
 
