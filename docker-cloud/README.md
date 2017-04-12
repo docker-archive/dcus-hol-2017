@@ -1,4 +1,4 @@
-# Lab XX: Continuous Integration With Docker Cloud
+# Continuous Integration With Docker Cloud
 
 
 > **Difficulty**: Beginner
@@ -21,18 +21,18 @@ Docker Cloud is Docker's cloud platform for individual developers and teams to b
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
-For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh labuser@v111node0-adaflds023asdf-23423kjl.appnet.com`
+For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh ubuntu@node0-gvs0mgc0216.southcentralus.cloudapp.azure.com`
 
-You will be asked to SSH into various nodes. These nodes are referred to as **v111node0**, **v111node1** etc. These tags correspond to the very beginning of the hostnames you will find in your welcome email. 
+You may be asked to SSH into various nodes. These nodes are referred to as **node0**, **node1** etc. These tags correspond to the very beginning of the hostnames you will find in your welcome email. 
 
 ## <a name="prerequisites"></a>Task 0: Prerequisites
 
 In order to complete this lab, you will need the following:
 
 - A Docker ID
-- A management host (you can use your laptop or one of the Azure nodes supplied in your registration email)
+- A management host (for this lab you'll use Linux **node0**)
 - A GitHub account
-- Git installed locally on your machine (if you are using your machine for the *management host* otherwise it's already installed in your Azure VM)
+- Git installed (It hould already be installed in your Azure VM)
 
 ### Obtain a Docker ID
 
@@ -86,15 +86,15 @@ Now that you've got Docker Cloud linked to your GitHub account, we'll start by f
 
 2. Click the **Fork** button in the upper right hand corner to create your own copy of the source repository.
 
-Next, we'll clone the repository into our local Docker environment. The following commands will be executed in the terminal or command window from any one of your supplied VMs (Windows or Linux).
+Next, we'll clone the repository into our local Docker environment. The following commands will be executed in the terminal or command window from Linux **node0**
 
-> **Note**: Be sure to be logged on and running the next commands from one of your supplied VMs (either Linux of Windows).
+1. If you have not already log into your Azure VM. For example (be sure to use the actual node name supplied in your email):
+
+	```ssh ubuntu@node0-gvs0mgc0216.southcentralus.cloudapp.azure.com```
 
 1. Change to your home directory.
 
-  `$ cd` (for Linux machines)
-
-  `$ cd %userprofile%` (for Windows machines)
+  `$ cd` 
 
 2. Clone the repository (you will need to have `git` installed and the `git` binary present in your PATH).
 
@@ -158,13 +158,16 @@ Well done! You've created two new repos and configured them to autobuild wheneve
 
 Switch back the command line of your VM. 
 
+1. If you have not already log into your Azure VM. For example (be sure to use the actual node name supplied in your email):
+
+	```ssh ubuntu@node0-gvs0mgc0216.southcentralus.cloudapp.azure.com```
+
 1. Change to the directory containing the voting app. 
 
 		$ cd ~/voting-demo/voting
 
 2. Use vi or your favorite text editor to open `app.py`.
   + To use `vi` on Linux: `$ vi app.py`
-  + To use `notepad.exe` on Windows: `$ notepad app.py`
 
 3. Scroll down to find the lines containing `optionA` and `optionB`, and change **Dev** and **Ops** to **Futbol** and **Soccer**.
 
@@ -179,10 +182,12 @@ Switch back the command line of your VM.
 		$ git add *
 
 		$ git commit -m "changing the voting options"
+		
 		[master 2ab640a] changing the voting options
  		1 file changed, 3 insertions(+), 2 deletions(-)
 
  		$ git push origin master
+ 		
  		Counting objects: 4, done.
 		Delta compression using up to 8 threads.
 		Compressing objects: 100% (4/4), done.
