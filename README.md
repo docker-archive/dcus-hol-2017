@@ -4,35 +4,38 @@
 
 This repo contains the series of hands-on labs presented at DockerCon 2017. They are designed to help you gain experience in various Docker features, products, and solutions. Depending on your experience, each lab requires between 30-45 minutes to complete. They range in difficulty from easy to advanced.
 
-In order to complete the following labs you'll need to create at least 3 Ubuntu 16.04 virtual machines (TODO: Add Windows VM's) and install the (TODO: Fix engine) Docker 1.12 engine.
+You should be receiving an email with the necessary hostnames and credentials for the Azure VMs and Docker Datacenter clusters necessary to complete the labs. 
 
-You can then choose one or more of the following lab tutorials to go through.
+After you have your email, you can then choose one or more of the following lab tutorials to go through.
 
 ---
 
-## Lab 01. [Example Lab 1](/path/to/github/folder)
+## [Continuous Integration With Docker Cloud](https://github.com/docker/dcus-hol-2017/tree/master/docker-cloud)
 
-Short introduction
+In this lab, you will learn how to configure a continuous integration (CI) pipeline for a web application using Docker Cloud's automated build features. You will complete the following tasks as part of the lab:
 
-Duration: XXX minutes
+> **Difficulty**: Beginner
 
-In this lab you will:
+> **Time**: Approximately 20 minutes
 
-- Item 1
-- Item 2
+> - Configure Docker Cloud to Automatically Build Docker Images
+> - Configure Docker Cloud Autobuilds
+> - Trigger an Autobuild
 
-## Lab 02. [Example Lab 2](/path/to/github/folder)
+## [Docker Networking](https://github.com/docker/dcus-hol-2017/tree/master/docker-networking)
 
-Short introduction
+In this lab you will learn about key Docker Networking concepts. You will get your hands dirty by going through examples of a few basic networking concepts, learn about Bridge and Overlay networking, and finally learning about the Swarm Routing Mesh.
 
-Duration: XXX minutes
+> **Difficulty**: Beginner to Intermediate
 
-In this lab you will:
+> **Time**: Approximately 45 minutes
 
-- Item 1
-- Item 2
-- Item 3
-- Item 4
+> **Tasks**:
+>
+> * Networking Basics
+> * Bridge Networking
+> * Overlay Networking
+
 
 ---
 
