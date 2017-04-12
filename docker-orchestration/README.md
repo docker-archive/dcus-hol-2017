@@ -1,4 +1,4 @@
-# Lab X: Docker Orchestration
+# Docker Orchestration
 
 Hi, welcome to the Orchestration lab for DockerCon 2017!
 
