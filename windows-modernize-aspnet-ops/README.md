@@ -63,7 +63,7 @@ You will build images and push them to Docker Hub, so you can pull them on diffe
 Start by ensuring you have the latest lab source code. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and clone the lab repo from GitHub:
 
 ```
-mkdir -p c:\scm\github\docker
+mkdir -p C:\scm\github\docker
 cd C:\scm\github\docker
 git clone https://github.com/dcus-hol-2017.git
 ```
@@ -100,7 +100,7 @@ There are just three lines of [Dockerfile instructions](https://docs.docker.com/
 Every Docker image has a unique name, and you can also tag images with additional information like application version numbers. On your VM, change to the v1.0 directory and build the Dockerfile:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-ops\v1.0
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-ops\v1.0
 docker build -t <DockerID>/modernize-aspnet-ops:1.0 .
 ```
 
@@ -167,7 +167,7 @@ Version 1.1 represents a change to the app which coincides with an updated Windo
 The process to build the new version is identical. In PowerShell, switch to the 1.1 directory and run `docker build`, using a new tag to identify the version:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-ops\v1.1
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-ops\v1.1
 docker build -t <DockerId>/modernize-aspnet-ops:1.1 .
 ```
 
