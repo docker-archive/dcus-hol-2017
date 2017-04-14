@@ -52,9 +52,30 @@ You will be provided a set of Windows Server 2016 virtual machines running in Az
 - Mac - install [Microsoft Remote Desktop](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12) from the app store.
 - Linux - install [Remmina](http://www.remmina.org/wp/), or any RDP client you prefer.
 
+> When you connect to the VM, if you are prompted to run Windows Update, you should cancel out. The labs have been tested with the existing VM state and any changes may cause problems.
+
 You will build images and push them to Docker Hub, so you can pull them on different Docker hosts. You will need a Docker ID.
 
 - Sign up for a free Docker ID on [Docker Hub](https://hub.docker.com)
+
+## Prerequisite Task: Prepare your lab environment
+
+Start by ensuring you have the latest lab source code. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and clone the lab repo from GitHub:
+
+```
+mkdir -p c:\scm\github\docker
+cd C:\scm\github\docker
+git clone https://github.com/dcus-hol-2017.git
+```
+
+Now clear up anything left from a previous lab. You only need to do this if you have used this VM for one of the other Windows labs, but you can run it sefaly to restore Docker to a clean state. 
+
+This stops and removes all running containers, and then leaves the swarm - ignore any error messages you see:
+
+```
+docker container rm -f $(docker container ls -a -q)
+docker swarm leave -f
+```
 
 ## <a name="task1"></a>Task 1: Packaging ASP.NET apps as Docker images
 
@@ -76,28 +97,10 @@ There are just three lines of [Dockerfile instructions](https://docs.docker.com/
 
 ## <a name="task1.2"></a> Task 1.2: Building the v1.0 application image
 
-First, `cd C:\scm\github\`.
+Every Docker image has a unique name, and you can also tag images with additional information like application version numbers. On your VM, change to the v1.0 directory and build the Dockerfile:
 
 ```
-cd C:\scm\github\
-```
-
-Then `git clone https://github.com/jweissig/v1.0.git`.
-
-```
-git clone https://github.com/jweissig/v1.0.git
-```
-
-Then `cd v1.0`
-
-```
-cd C:\scm\github\v1.0\
-```
-
-Every Docker image has a unique name, and you can also tag images with additional information like application version numbers. To build the image, RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and run:
-
-```
-cd C:\scm\github\v1.0
+cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-ops\v1.0
 docker build -t <DockerID>/modernize-aspnet-ops:1.0 .
 ```
 
@@ -161,27 +164,10 @@ Version 1.1 represents a change to the app which coincides with an updated Windo
 
 ## <a name="task2"></a>Task 2.2: Building the v1.1 Application Image
 
-First, `cd C:\scm\github\`.
-
-```
-cd C:\scm\github\
-```
-
-Then `git clone https://github.com/jweissig/v1.1.git`.
-
-```
-git clone https://github.com/jweissig/v1.1.git
-```
-
-Then `cd v1.1`
-
-```
-cd C:\scm\github\v1.1\
-```
-
 The process to build the new version is identical. In PowerShell, switch to the 1.1 directory and run `docker build`, using a new tag to identify the version:
 
 ```
+cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-ops\v1.1
 docker build -t <DockerId>/modernize-aspnet-ops:1.1 .
 ```
 
@@ -205,7 +191,7 @@ Version 1.0 of the application is still running, and the container port is mappe
 You can test out the new version locally on the VM by running a new container without publishing any ports:
 
 ```
-docker run -d --name v1.1 dockersamples/modernize-aspnet-ops:1.1
+docker run -d --name v1.1 <DockerId>/modernize-aspnet-ops:1.1
 ```
 
 With no published ports, the container is not accessible outside of the VM. To browse the new site on the VM, you need to find the container's IP address by running:
@@ -311,7 +297,7 @@ In a highly-available swarm where you have a service running in many containers 
 To update your service to version 1.1, run:
 
 ```
-docker service update --image sixeyed/modernize-aspnet-ops:1.1 sample
+docker service update --image <DockerId>/modernize-aspnet-ops:1.1 sample
 ```
 
 That tells Docker to update the `sample` service to version `1.1` of the image. There's no load balancer in front of your lab VMs so you won't see the full zero-downtime deployment. 
