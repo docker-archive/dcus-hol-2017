@@ -14,6 +14,7 @@ In this lab you will learn about key Docker Networking concepts. You will get yo
 > * [Section #1 - Networking Basics](#task1)
 > * [Section #2 - Bridge Networking](#task2)
 > * [Section #3 - Overlay Networking](#task3)
+> * [Cleaning Up](#cleanup)
 
 ## Document conventions
 
@@ -790,7 +791,7 @@ Towards the bottom of the output you will see the VIP of the service listed. The
 
 Feel free to create a new `docker exec` session to the service task (container) running on **node1-b** and perform the same `ping -c5 service` command. You will get a response form the same VIP.
 
-# Cleaning Up
+# <a name="cleanup"></a>Cleaning Up
 
 Hopefully you were able to learn a little about how Docker Networking works during this lab. Lets clean up the service we created, the containers we started, and finally disable Swarm mode.
 
