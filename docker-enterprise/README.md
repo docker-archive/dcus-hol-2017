@@ -1,6 +1,6 @@
-# Lab X: Deploying Applications with Docker Enterprise
+# Deploying Applications with Docker EE Advanced / Docker Datacenter
 
-In this lab you will deploy an application on UCP that takes advantage of some of the latest features of Docker Datacenter. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
+In this lab you will deploy an application on Universal Control Plane (UCP) that takes advantage of some of the latest features of Docker Datacenter. Docker Datacenter is included with Docker EE Standard and Docker EE Advanced. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
 
 - Docker services
 - Application scaling and failure mitigation
@@ -12,7 +12,7 @@ In this lab you will deploy an application on UCP that takes advantage of some o
 
 > **Difficulty**: Intermediate
 
-> **Time**: Approximately 45 minutes
+> **Time**: Approximately 50 minutes
 
 
 > **Tasks**:
@@ -56,10 +56,10 @@ The following task will guide you through how to create a UCP cluster on your ho
 ### <a name="task1.1"></a>Task 1.1: Installing the UCP Manager
 
 
-1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
+1. Log in to `node0` of the three nodes you have been given for this lab. We will install `node0` as the UCP controller of your UCP cluster.
 
 ```
-$ ssh -i <identity file> ubuntu@<ducp-0 public ip>
+$ ssh ubuntu@<node0-public-dns>
 ```
 
 2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
@@ -89,7 +89,7 @@ Server:
 
 You will have to supply the following values to the install command:
 - `--ucp-password` - This can be a password of your choosing
-- `--san` - Supply the public IP address of this host. This will be the IP address you used to initially log in to this host in step 1.
+- `--san` - This should be the public IP of `node0`
 
 ```
 docker run --rm -it --name ucp \
@@ -98,15 +98,19 @@ docker run --rm -it --name ucp \
 docker/ucp:2.1.1 install \
 --admin-username admin \
 --admin-password <your-password> \
---san <host-public-ip> \
+--san <node0-public-dns> \
 --host-address $(hostname -i)
 ```
 
 It will take up to 30 seconds to install.
 
-4. Log in to UCP.
+4. Log in to UCP by going to `https://<node0-public-dns>` in your browswer
 
-Now go to your browser and type in the public IP of this host in the address bar. You should be redirected to a login page. Log in as the user `admin` with the password that you supplied in step 3.
+Depending on what browser you are using, you will receive a warning about the connection. Proceed through to the UCP URL. The warning is occuring because we UCP uses privately signed certificates by default. In a production installation we would add our own certificates that would be trusted by our browser.
+
+![](images/private.png) 
+
+Log in as the user `admin` with the password that you supplied in step 3.
 
 ![](images/ucp-login.png) 
 

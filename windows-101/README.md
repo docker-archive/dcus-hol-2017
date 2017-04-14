@@ -1,4 +1,4 @@
-# Lab X: Windows Docker Containers 101
+# Windows Docker Containers 101
 
 Docker runs natively on Windows 10 and Windows Server 2016. In this lab you'll learn how to package Windows applications as Docker images and run them as Docker containers. You'll learn how to create a cluster of Docker servers in swarm mode, and deploy an application as a highly-available service.
 
@@ -38,9 +38,30 @@ You will be provided a set of Windows Server 2016 virtual machines running in Az
 - Mac - install [Microsoft Remote Desktop](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12) from the app store.
 - Linux - install [Remmina](http://www.remmina.org/wp/), or any RDP client you prefer.
 
+> When you connect to the VM, if you are prompted to run Windows Update, you should cancel out. The labs have been tested with the existing VM state and any changes may cause problems.
+
 You will build images and push them to Docker Hub, so you can pull them on different Docker hosts. You will need a Docker ID.
 
 - Sign up for a free Docker ID on [Docker Hub](https://hub.docker.com)
+
+## Prerequisite Task: Prepare your lab environment
+
+Start by ensuring you have the latest lab source code. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and clone the lab repo from GitHub:
+
+```
+mkdir -p c:\scm\github\docker
+cd C:\scm\github\docker
+git clone https://github.com/dcus-hol-2017.git
+```
+
+Now clear up anything left from a previous lab. You only need to do this if you have used this VM for one of the other Windows labs, but you can run it sefaly to restore Docker to a clean state. 
+
+This stops and removes all running containers, and then leaves the swarm - ignore any error messages you see:
+
+```
+docker container rm -f $(docker container ls -a -q)
+docker swarm leave -f
+```
 
 ## <a name="task1"></a>Task 1: Run some simple Windows Docker containers
 
@@ -162,27 +183,10 @@ Have a look at the [Dockerfile for the lab](tweet-app/Dockerfile), which builds 
 
 The Docker platform has the capability to build, ship and run software.
 
-First, `cd C:\scm\github\`.
-
-```
-cd C:\scm\github\
-```
-
-Then `git clone https://github.com/jweissig/tweet-app.git`.
-
-```
-git clone https://github.com/jweissig/tweet-app.git
-```
-
-Then `cd tweet-app`
-
-```
-cd C:\scm\github\tweet-app\
-```
-
 To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
 
 ```
+cd C:\src\github\docker\dcus-hol-2017\windows-101\tweet-app
 docker build -t <DockerID>/dockercon-tweet-app .
 ```
 
@@ -320,7 +324,9 @@ To add a worker to this swarm, run the following command:
 To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
 ```
 
-Make a note of the join token, and the IP address of the manager node. Then open an RDP connection to the two other VMs you have access to for this lab. On each VM, open a PowerShell session from the taskbar, run `docker version` to make sure Docker is running, and then join the swarm:
+> Make a note of the join token, and the IP address of the manager node. 
+
+Now open an RDP connection to the two other VMs you have access to for this lab. On each VM, open a PowerShell session from the taskbar, run `docker version` to make sure Docker is running, and then join the swarm:
 
 ```
 docker swarm join --token <swarm-token> <manager-ip-address>:2377

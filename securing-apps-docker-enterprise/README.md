@@ -1,6 +1,6 @@
-# Lab X: Securing Applications with Docker Enterprise
+# Securing Applications with Docker EE Advanced 
 
-In this lab you will integrate Docker Enterprise in to your development pipeline. You will build your application from a Dockerfile and push your image to the Docker Trusted Registry (DTR). DTR will scan your image for vulnerabilities so they can be fixed before your application is deployed. This helps you build more secure apps!
+In this lab you will integrate Docker EE Advanced in to your development pipeline. You will build your application from a Dockerfile and push your image to the Docker Trusted Registry (DTR). DTR will scan your image for vulnerabilities so they can be fixed before your application is deployed. This helps you build more secure apps!
 
 
 > **Difficulty**: Beginner
@@ -27,46 +27,61 @@ In this lab you will integrate Docker Enterprise in to your development pipeline
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
-For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh labuser@v111node0-adaflds023asdf-23423kjl.appnet.com`
+For instance if you see `https://<node0-dns-name>` you would actually type something like `https://node0-smwqii1akqh.southcentralus.cloudapp.azure.com`.
 
-You will be asked to SSH into various nodes. These nodes are referred to as **v111node0**, **v111node1** etc. These tags correspond to the very beginning of the hostnames you will find in your welcome email. 
+You will be asked to SSH into various nodes. In this lab these nodes are referred to as `node0`, `node1`, and `node2`, but you will use the full DNS name. The full DNS name will look something like the following:
+
+- `node0-smwqii1akqh.southcentralus.cloudapp.azure.com`
+- `node1-smwqii1akqh.southcentralus.cloudapp.azure.com`
+- `node2-smwqii1akqh.southcentralus.cloudapp.azure.com`
+
 
 ## <a name="prerequisites"></a>Prerequisites
 
 This lab requires an instance of Docker Trusted Registry. This lab provides DTR for you. If you are creating this lab yourself then you can see how to install DTR [here.](https://docs.docker.com/datacenter/dtr/2.2/guides/admin/install/)
 
-In addition to DTR, this lab requires a node with Docker EE 17.03+ installed. You will use this node to build and deploy your application.
+In addition to DTR, this lab requires a node with Docker EE 17.03+ installed. Feel free to run this lab on Docker for Mac or Docker for Windows if you have it. Otherwise, use `node1` of the Linux nodes that were provided to you.
 
-These steps describe how to log in to your development node:
 
-1. Log in to one of your hosts. The first host that we log on to will be your UCP controller.
+Each of the Linux lab nodes will have a unique password.
+
+1. Log in to `node1` of the three nodes you have been given for this lab.  The username for all of the Linux nodes is `ubuntu` and the node will have a unique password that should be in your email. You may be prompted whether you want to continue. Answer `yes` and then enter the password.
 
 ```
-$ ssh -i <identity file> ubuntu@<ducp-0 public ip>
+$ ssh ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com
+
+The authenticity of host 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com (13.65.212.221)' can't be established.
+ECDSA key fingerprint is SHA256:BKHHGwzrRx/zIuO7zwvyq5boa/5o2cZD9OTlOlOWJvY.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com,13.65.212.221' (ECDSA) to the list of known hosts.
+ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com's password:
+
+Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-72-generic x86_64)
 ```
 
 2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
 
 ```
-~$ docker version
+$ docker version
 Client:
- Version:      17.03.1-ee-2
- API version:  1.27
+ Version:      17.03.0-ee-1
+ API version:  1.26
  Go version:   go1.7.5
- Git commit:   ad495cb
- Built:        Tue Mar 28 19:23:18 2017
+ Git commit:   9094a76
+ Built:        Wed Mar  1 01:20:54 2017
  OS/Arch:      linux/amd64
 
 Server:
- Version:      17.03.1-ee-2
- API version:  1.27 (minimum version 1.12)
+ Version:      17.03.0-ee-1
+ API version:  1.26 (minimum version 1.12)
  Go version:   go1.7.5
- Git commit:   ad495cb
- Built:        Tue Mar 28 19:23:18 2017
+ Git commit:   9094a76
+ Built:        Wed Mar  1 01:20:54 2017
  OS/Arch:      linux/amd64
  Experimental: false
  
 ```
+
 
 
 ## <a name="task1"></a>Task 1: Build and Running a Docker Application
@@ -79,8 +94,8 @@ The following task will guide you through how to build your application from a D
 1. Clone your application from the [GitHub repo](https://github.com/mark-church/docker-pets) with `git`. Go to the `/web` directory. This is the directory that holds the source for our application.
 
 ```
-$ git clone https://github.com/mark-church/docker-pets
-$ cd docker-pets/web
+~$ git clone https://github.com/mark-church/docker-pets
+~$ cd docker-pets/web
 ```
 
 Inspect the directory.
@@ -139,6 +154,14 @@ fetch http://dl-cdn.alpinelinux.org/alpine/v3.4/main/x86_64/APKINDEX.tar.gz
 
 It should not take more than a minute to build the image.
 
+2. You should now see that the image exists locally on your Docker engine by running `docker images`.
+
+```
+~/docker-pets/web $ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+docker-pets         latest              f0b92696c13f        3 minutes ago       94.9 MB
+```
+
 ### <a name="task1.2"></a>Task 1.3: Deploy the App Locally
 
 You will now deploy the image locally to ensure that it works. Before you do this you need to turn Swarm mode on in your engine so that we can take advantage of Docker Services.
@@ -161,15 +184,15 @@ fd3ovikiq7tzmdr70zukbsgbs *  moby      Ready   Active        Leader
 2. Deploy your application from the compose file. In the `/docker-pets` directory there is a compose file that you will use to deploy this application. You will deploy your application stack as `pets`.
 
 ```
-~/docker-pets $ docker stack deploy -c pets-dev-compose.yml pets
+~/docker-pets $ docker stack deploy -c pets-container-compose.yml pets
 Creating network pets_backend
 Creating service pets_web
 Creating service pets_db
 ```
 
-3. Go to your browser and in the address pane type in `<node-public-ip`>:5000`. This is the address and port where the app is being served. If you see something similar to the following then it is working correctly. It may take up to a minute for the app to start up, so try to refresh until it works.
+3. Go to your browser and in the address bar type in `<node1-public-DNS>`. (The app is serving on port 80 so you don't have to specify the port). This is the address where your local app is being served. If you see something similar to the following then it is working correctly. It may take up to a minute for the app to start up, so try to refresh until it works.
 
-![](images/voting.png) 
+![](images/single-container-deploy.png) 
 
 ## <a name="task2"></a>Task 2: Pushing and Scanning Docker Images
 
@@ -181,11 +204,17 @@ In this lab, DTR has already been set up for you so you will log in to it and us
 
 1. Log in to DTR. Before the lab you should have been assigned a cluster and a username. Use these when logging in.
 
-Go to `<cluster-name>.dockerdemos.com` and login with your given username and password. You should see the DTR home screen.
+Go to `https://<dtr-cluster>.dockerdemos.com` and login with your given username and password. You should see the DTR home screen.
 
 ![](images/dtr-home.png) 
 
-2. Before you can push an image to DTR you must create a repository. Click on Repositories / New repository. For account, pick your username. The repository will be `docker-pets` (the same as the image name). Give it a simple description and mark the repo as Private. This will make the repo visible only to those that are granted access (which right now is only you). Ensure that "Scan on Push" is checked to On. When this is checked, images pushed to this repo will be scanned for vulnerabilities automatically.
+2. Before you can push an image to DTR you must create a repository. Click on Repositories / New repository. Fill it with the following values:
+
+- Account: select your username
+- Repository Name: `docker-pets`
+- Description: Write any description
+- Visibility: Private
+- Scan on Push: On
 
 ![](images/dtr-repo.png) 
 
@@ -199,9 +228,10 @@ Next we will push our local image to DTR. First we will need to authenticate wit
 1. Run the following command. Insert the name of your assigned cluster in the command.
 
 ```
-~/docker-pets $ docker run -it --rm \
-  -v /etc/docker:/etc/docker \
-  mbentley/trustdtr <cluster>.dockerdemos.com
+~/docker-pets $ docker run -it --rm -v /etc/docker:/etc/docker \
+  mbentley/trustdtr <dtr-cluster>.dockerdemos.com
+  
+  
 Using the root CA certificate for trusting DTR
 Adding certificate to '/etc/docker/certs.d/dtr.church.dckr.org/ca.crt'...done
 Verifying format of certificate...done
@@ -210,23 +240,23 @@ Verifying format of certificate...done
 2. Log in to DTR with your username.
 
 ```
-~/docker-pets $ docker login <cluster>.dockerdemos.com
+~/docker-pets $ docker login <dtr-cluster>.dockerdemos.com
 Username: <username>
 Password:
 Login Succeeded
 ```
-  
-3. Tag your image with the name registry and repo you are pushing to. Input your username and cluster. We are going to add the version tag `1.0` to the image.
+
+3. Tag the image with the URL of your DTR cluster and with the image tag `1.0`.
 
 ```
-~/docker-pets $ docker tag docker-pets <cluster>.dockerdemos.com/<username>/docker-pets:1.0
+~/docker-pets $ docker tag docker-pets <cluster-name>.dockerdemos.com/<username>/docker-pets:1.0
 ```
 
-4. Push your image to DTR.
+4. Now push your image to DTR.
 
 ```
-~/docker-pets $ docker push <cluster>.docker-pets/<username>/docker-pets:1.0
-The push refers to a repository [dtr.church.dckr.org/mark/docker-pets]
+~/docker-pets $ docker push <dtr-cluster>.docker-pets/<username>/docker-pets:1.0
+The push refers to a repository [dtr2.dockerdemos.com/mark/docker-pets]
 273eb8eab1c9: Pushed
 7d68ed329d0d: Pushed
 02c1439e0fdc: Pushed
@@ -237,6 +267,8 @@ The push refers to a repository [dtr.church.dckr.org/mark/docker-pets]
 5. Go to the DTR GUI and click on your `docker-pets` repo. The image vulnerability scan should have started already and DTR will display the status of the scan. Once the scan is complete, DTR will display the number of vulnerabilities found. For the `docker-pets` image a critical vulnerability was found.
 
 ![](images/scan-status.png) 
+
+> You may need to refresh the page to show the status of a scan
 
 6. Click on View details. The Layers tab shows the results of the scan. The scan is able to identify the libraries that are installed as a part of each layer.
 
@@ -260,26 +292,27 @@ We identified that our application has the known vulnerability `CVE-2016-8859`. 
 ~/docker-pets/web $ vi Dockerfile
 ```
 
-2. Change the top line `FROM alpine:3.4` to `FROM alpine:3.6`. `alpine:3.6` is  newer version of the base OS that has this vulnerability fixed.
+2. Change the top line `FROM alpine:3.3` to `FROM alpine:3.4`. `alpine:3.4` is  newer version of the base OS that has this vulnerability fixed.
 
-3. Rebuild the image. This time we are going to use the tag `2.0`
-
-```
-~/docker-pets/web $ docker build -t docker-pets:2.0 .
-```
-
-4. Tag the image as the `latest` and also with the DTR URL.
+3. Rebuild the image. 
 
 ```
-~/docker-pets/web $ docker push <cluster>.docker-pets/<username>/docker-pets:2.0
+~/docker-pets/web $ docker build -t docker-pets .
 
-~/docker-pets/web $ docker push <cluster>.docker-pets/<username>/docker-pets:latest
+```
+
+4. Tag the image as the `2.0` and also with the DTR URL.
+
+```
+~/docker-pets $ docker tag docker-pets <dtr-cluster>.dockerdemos.com/<username>/docker-pets:2.0
 ```
 
 5. Re-deploy the image locally to ensure that the change did not break the app.
 
 ```
-~/docker-pets $ docker stack deploy -c pets-dev-compose.yml pets
+~/docker-pets/web $ cd ..
+
+~/docker-pets $ docker stack deploy -c pets-container-compose.yml pets
 Updating service pets_db (id: nv2lehghp7p6dpx0e57rur570)
 Updating service pets_web (id: 3f3lerya83x6a3zapc706yg23)
 unable to pin image docker-pets to digest: errors:
@@ -288,7 +321,7 @@ unauthorized: authentication required
 ```
 The error message is expected and is only printed because we are deploying from a local image that is not in the public registry.
 
-6. Go to your browser and in the address pane type in `<node-public-ip`>:5000`. You should see that the app has succesfully deployed with the new change.
+6. Go to your browser and in the address pane type in `<node-public-ip`>. You should see that the app has succesfully deployed with the new change.
 
 ### <a name="Task 3.2"></a>Task 3.2: Rescan the Remediated Application
 
@@ -297,10 +330,12 @@ We have now remediated the fix and verified that the new version works when depl
 1. Push the new image to DTR.
 
 ```
-~/docker-pets $ docker push <cluster-id>.dockerdemos.com/<username>/docker-pets:2.0
+~/docker-pets $ docker push <dtr-cluster>.dockerdemos.com/<username>/docker-pets:2.0
 ```
 
 2. Go to the DTR UI and wait for the scan to complete. Once the scan has completed DTR will report that the vulnerability no longer exists in this image. The image is now ready for use by the rest of your team!
+
+> You may need to refresh the page to show the status of a scan
 
 
 Congratulations! You just built an application, discovered a security vulnerability, and patched it in just a few easy steps. Pat yourself on the back for helping create safer apps!!
