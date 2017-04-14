@@ -15,6 +15,7 @@ In this lab you will play around with the container orchestration features of Do
 > * [Section #3 - Deploy applications across multiple hosts](#multi-application)
 > * [Section #4 - Scale the application](#scale-application)
 > * [Section #5 - Drain a node and reschedule the containers](#recover-application)
+> * [Cleaning Up](#cleanup)
 
 ## Document conventions
 
@@ -387,4 +388,46 @@ s3548wki7rlk  sleep-app.6      ubuntu:latest  node2-c  Running        Running 3 
 44s8d59vr4a8  sleep-app.7      ubuntu:latest  node0-a  Running        Running 18 minutes ago
 ```
 
-Congratulations! You've completed this lab. You now know how to build a swarm, deploy applications as collections of services, and scale individual services up and down.
+# <a name="cleanup"></a>Cleaning Up
+
+Execute the `docker service rm sleep-app` command on **node0-a** to remove the service called *myservice*.
+
+```
+$ docker service rm sleep-app
+```
+
+Execute the `docker ps` command on **node0-a** to get a list of running containers.
+
+```
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+044bea1c2277        ubuntu              "sleep infinity"    17 minutes ago      17 minutes ag                           distracted_mayer
+```
+
+You can use the `docker kill <CONTAINER ID>` command on **node0-a** to kill the sleep container we started at the beginning.
+
+```
+$ docker kill 044bea1c2277
+```
+
+Finally, lets remove node0-a, node1-b, and node2-c from the Swarm. We can use the `docker swarm leave --force` command to do that. 
+
+Lets run `docker swarm leave --force` on **node0-a**.
+
+```
+$ docker swarm leave --force
+```
+
+Then, run `docker swarm leave --force` on **node1-b**.
+
+```
+$ docker swarm leave --force
+```
+
+Finally, run `docker swarm leave --force` on **node2-c**.
+
+```
+$ docker swarm leave --force
+```
+
+Congratulations! You've completed this lab. You now know how to build a swarm, deploy applications as collections of services, and scale individual services up and down. Feel free to try any of the other labs.
