@@ -2,7 +2,7 @@
 
 Hi, welcome to the Networking lab for DockerCon 2017!
 
-In this lab you will learn about key Docker Networking concepts. You will get your hands dirty by going through examples of a few basic networking concepts, learn about Bridge and Overlay networking, and finally learning about the Swarm Routing Mesh.
+In this lab you will learn about key Docker Networking concepts. You will get your hands dirty by going through examples of a few basic networking concepts, learn about Bridge networking, and finally Overlay networking.
 
 > **Difficulty**: Beginner to Intermediate
 
@@ -790,6 +790,43 @@ Towards the bottom of the output you will see the VIP of the service listed. The
 
 Feel free to create a new `docker exec` session to the service task (container) running on **node1-b** and perform the same `ping -c5 service` command. You will get a response form the same VIP.
 
-## Wrap Up
+# Cleaning Up
 
-Thank you for taking the time to complete this lab! Feel free to try any of the other labs.
+Hopefully you were able to learn a little about how Docker Networking works during this lab. Lets clean up the service we created, the containers we started, and finally disable Swarm mode.
+
+Execute the `docker service rm myservice` command on **node0-a** to remove the service called *myservice*.
+
+```
+$ docker service rm myservice
+```
+
+Execute the `docker ps` command on **node0-a** to get a list of running containers.
+
+```
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                           NAMES
+846af8479944        ubuntu              "sleep infinity"         17 minutes ago      Up 17 minutes                                       heuristic_boyd
+4e0da45b0f16        nginx               "nginx -g 'daemon ..."   12 minutes ago      Up 12 minutes       443/tcp, 0.0.0.0:8080->80/tcp   web1
+```
+
+You can use the `docker kill <CONTAINER ID ...>` command on **node0-a** to kill the ubunut and nginx containers we started at the beginning.
+
+```
+$ docker kill 846af8479944 4e0da45b0f16
+```
+
+Finally, lets remove node0-a and node1-b from the Swarm. We can use the `docker swarm leave --force` command to do that. 
+
+Lets run `docker swarm leave --force` on **node0-a**.
+
+```
+$ docker swarm leave --force
+```
+
+Lets also run `docker swarm leave --force` on **node1-b**.
+
+```
+$ docker swarm leave --force
+```
+
+Congratulations! You've completed this lab. Feel free to try any of the other labs.
