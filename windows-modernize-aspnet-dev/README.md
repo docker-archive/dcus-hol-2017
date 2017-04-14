@@ -64,7 +64,7 @@ You will build images and push them to Docker Hub, so you can pull them on diffe
 Start by ensuring you have the latest lab source code. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and clone the lab repo from GitHub:
 
 ```
-mkdir -p c:\scm\github\docker
+mkdir -p C:\scm\github\docker
 cd C:\scm\github\docker
 git clone https://github.com/dcus-hol-2017.git
 ```
@@ -108,7 +108,7 @@ The build agent is generic, it can be used to compile any .NET 4.5 web projects.
 To build the image, change to the builder directory and build the Dockerfile:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\builder
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\builder
 docker build -t <DockerID>/modernize-aspnet-builder .
 ```
 
@@ -123,7 +123,7 @@ With the builder image you can build any ASP.NET application, you just need to p
 The [build.ps1](v1-src/ProductLaunch/build.ps1) script for version 1 of the app is very simple, it just builds the web project from the expected source location, and publishes to the expected output location. On your lab VM, change to the `v1-src` directory and run a container to build the web app:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src
 
 docker run --rm `
  -v $pwd\ProductLaunch:c:\src `
@@ -181,7 +181,7 @@ Docker has its own DNS server which is how containers can find each other by nam
 Lastly the Dockerfile copies in the published website from the builder. Build the image to package up the app:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\web
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\web
 docker build -t <DockerID>/modernize-aspnet-web:v1 .
 ```
 
@@ -301,7 +301,7 @@ The message handler will run in a Docker container too. The [Dockerfile](v2-src/
 You need to run the builder image to compile the solution, and then build new Docker images for the web application and the message handler. The [build.ps1](v2-src/build.ps1) script does that for you:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
 .\build.ps1 <DockerID>
 ```
 
@@ -323,7 +323,7 @@ Now you can stop the containers from the v1 app, and start the new app using Doc
 docker container kill $(docker container ls -a -q)
 docker container rm $(docker container ls -a -q)
 
-cd C:\src\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
 docker-compose up -d
 ```
 
