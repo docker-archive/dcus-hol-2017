@@ -49,7 +49,7 @@ You will build images and push them to Docker Hub, so you can pull them on diffe
 Start by ensuring you have the latest lab source code. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and clone the lab repo from GitHub:
 
 ```
-mkdir -p c:\scm\github\docker
+mkdir -p C:\scm\github\docker
 cd C:\scm\github\docker
 git clone https://github.com/dcus-hol-2017.git
 ```
@@ -186,7 +186,7 @@ The Docker platform has the capability to build, ship and run software.
 To build the Dockerfile into a Docker image, open a PowerShell prompt on the Windows VM, change to the `tweet-app` directory and run the `docker build` command:
 
 ```
-cd C:\src\github\docker\dcus-hol-2017\windows-101\tweet-app
+cd C:\scm\github\docker\dcus-hol-2017\windows-101\tweet-app
 docker build -t <DockerID>/dockercon-tweet-app .
 ```
 
