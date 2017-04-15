@@ -51,7 +51,7 @@ Start by ensuring you have the latest lab source code. RDP into one of your Azur
 ```
 mkdir -p C:\scm\github\docker
 cd C:\scm\github\docker
-git clone https://github.com/dcus-hol-2017.git
+git clone https://github.com/docker/dcus-hol-2017.git
 ```
 
 Now clear up anything left from a previous lab. You only need to do this if you have used this VM for one of the other Windows labs, but you can run it sefaly to restore Docker to a clean state. 
