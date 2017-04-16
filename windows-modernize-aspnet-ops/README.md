@@ -253,7 +253,7 @@ docker pull --all-tags <DockerID>/modernize-aspnet-ops
 
 You can close the RDP sessions for VM 2 and 3 now - you will be managing the swarm from the original VM.
 
-## Task 3.2: Run application version 1.0 as a service
+## <a name="task3.2"></a>Task 3.2: Run application version 1.0 as a service
 
 In swarm mode, you don't run individual containers. Instead you create services and the swarm decides which node to run the containers on. For services which run across many containers, Docker will spread them across as many hosts as possible, to maximise redundancy. 
 
@@ -288,7 +288,7 @@ You'll see a container on each node. On your laptop you can browse to any one of
 Services in swarm mode are first-class citizens, and they can be updated using built-in platform functionality.
 
 
-## Task 3.3: Upgrade to application version 1.1
+## <a name="task3.3"></a>Task 3.3: Upgrade to application version 1.1
 
 The update process runs against a service, and updates it to a specified image version. It does that by stopping the existing containers, and starting new ones. 
 
