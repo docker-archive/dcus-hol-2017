@@ -53,9 +53,30 @@ You will be provided a set of Windows Server 2016 virtual machines running in Az
 - Mac - install [Microsoft Remote Desktop](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12) from the app store.
 - Linux - install [Remmina](http://www.remmina.org/wp/), or any RDP client you prefer.
 
+> When you connect to the VM, if you are prompted to run Windows Update, you should cancel out. The labs have been tested with the existing VM state and any changes may cause problems.
+
 You will build images and push them to Docker Hub, so you can pull them on different Docker hosts. You will need a Docker ID.
 
 - Sign up for a free Docker ID on [Docker Hub](https://hub.docker.com)
+
+## Prerequisite Task: Prepare your lab environment
+
+Start by ensuring you have the latest lab source code. RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and clone the lab repo from GitHub:
+
+```
+mkdir -p C:\scm\github\docker
+cd C:\scm\github\docker
+git clone https://github.com/docker/dcus-hol-2017.git
+```
+
+Now clear up anything left from a previous lab. You only need to do this if you have used this VM for one of the other Windows labs, but you can run it sefaly to restore Docker to a clean state. 
+
+This stops and removes all running containers, and then leaves the swarm - ignore any error messages you see:
+
+```
+docker container rm -f $(docker container ls -a -q)
+docker swarm leave -f
+```
 
 ## <a name="task1"></a>Task 1: Building ASP.NET applications with Docker
 
@@ -84,27 +105,10 @@ The [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint) i
 
 The build agent is generic, it can be used to compile any .NET 4.5 web projects. You could add more targeting packs from NuGet in the Dockerfile if you want to support different .NET versions. 
 
-First, `cd C:\scm\github\`.
+To build the image, change to the builder directory and build the Dockerfile:
 
 ```
-cd C:\scm\github\
-```
-
-Then `git clone https://github.com/jweissig/v1-src.git`.
-
-```
-git clone https://github.com/jweissig/v1-src.git
-```
-
-Then `cd v1-src`
-
-```
-cd C:\scm\github\v1-src\
-```
-
-To build the image, RDP into one of your Azure VMs, open a PowerShell prompt from the taskbar shortcut, and run:
-
-```
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\builder
 docker build -t <DockerID>/modernize-aspnet-builder .
 ```
 
@@ -119,7 +123,7 @@ With the builder image you can build any ASP.NET application, you just need to p
 The [build.ps1](v1-src/ProductLaunch/build.ps1) script for version 1 of the app is very simple, it just builds the web project from the expected source location, and publishes to the expected output location. On your lab VM, change to the `v1-src` directory and run a container to build the web app:
 
 ```
-cd C:\scm\github\v1-src
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src
 
 docker run --rm `
  -v $pwd\ProductLaunch:c:\src `
@@ -177,7 +181,7 @@ Docker has its own DNS server which is how containers can find each other by nam
 Lastly the Dockerfile copies in the published website from the builder. Build the image to package up the app:
 
 ```
-cd C:\scm\github\v1-src\docker\web
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v1-src\docker\web
 docker build -t <DockerID>/modernize-aspnet-web:v1 .
 ```
 
@@ -294,21 +298,10 @@ The message handler will run in a Docker container too. The [Dockerfile](v2-src/
 
 ## <a name="task3.3"></a> Task 3.3: Running the distributed solution with Docker Compose
 
-First, `cd C:\scm\github\`.
-
-```
-cd C:\scm\github\
-```
-
-Then `git clone https://github.com/jweissig/v2-src.git`.
-
-```
-git clone https://github.com/jweissig/v2-src.git
-```
 You need to run the builder image to compile the solution, and then build new Docker images for the web application and the message handler. The [build.ps1](v2-src/build.ps1) script does that for you:
 
 ```
-cd C:\scm\github\v2-src
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
 .\build.ps1 <DockerID>
 ```
 
@@ -327,10 +320,10 @@ Invoke-WebRequest -UseBasicParsing -OutFile 'C:\Program Files\Docker\docker-comp
 Now you can stop the containers from the v1 app, and start the new app using Docker Compose:
 
 ```
-docker kill $(docker ps -a -q)
-docker rm $(docker ps -a -q)
+docker container kill $(docker container ls -a -q)
+docker container rm $(docker container ls -a -q)
 
-cd C:\scm\github\v2-src
+cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
 docker-compose up -d
 ```
 
