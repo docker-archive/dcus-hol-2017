@@ -35,30 +35,38 @@ In this lab you will deploy an application on Universal Control Plane (UCP) that
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
-For instance if you see `ssh <username>@<hostname>` you would actually type something like `ssh labuser@v111node0-adaflds023asdf-23423kjl.appnet.com`
+For instance if you see `https://<node0-dns-name>` you would actually type something like `https://node0-smwqii1akqh.southcentralus.cloudapp.azure.com`.
 
-You will be asked to SSH into various nodes. These nodes are referred to as **v111node0**, **v111node1** etc. These tags correspond to the very beginning of the hostnames you will find in your welcome email. 
+You will be asked to SSH into various nodes. In this lab these nodes are referred to as `node0`, `node1`, and `node2`, but you will use the full DNS name. The full DNS name will look something like the following:
+
+- `node0-smwqii1akqh.southcentralus.cloudapp.azure.com`
+- `node1-smwqii1akqh.southcentralus.cloudapp.azure.com`
+- `node2-smwqii1akqh.southcentralus.cloudapp.azure.com`
 
 ## <a name="prerequisites"></a>Prerequisites
 
 This lab is best done on three separate nodes, though it can be done with a single one. The requirements are as follows:
 
-- 3 Nodes
-- Docker Enterprise 17.03+ each installed on each
-- 1 node as a UCP Manager node
-- Remaining nodes as UCP Worker nodes
-
+- 3 Nodes with Docker Enterprise 17.03+ each installed on each
 
 ## <a name="task1"></a>Task 1: Installing UCP
 The following task will guide you through how to create a UCP cluster on your hosts.
 
 ### <a name="task1.1"></a>Task 1.1: Installing the UCP Manager
+Each of the Linux lab nodes will have a unique password that is in your email.
 
-
-1. Log in to `node0` of the three nodes you have been given for this lab. We will install `node0` as the UCP controller of your UCP cluster.
+1. Log in to `node1` of the three nodes you have been given for this lab.  The username for all of the Linux nodes is `ubuntu` and the node will have a unique password that should be in your email. You may be prompted whether you want to continue. Answer `yes` and then enter the password.
 
 ```
-$ ssh ubuntu@<node0-public-dns>
+$ ssh ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com
+
+The authenticity of host 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com (13.65.212.221)' can't be established.
+ECDSA key fingerprint is SHA256:BKHHGwzrRx/zIuO7zwvyq5boa/5o2cZD9OTlOlOWJvY.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com,13.65.212.221' (ECDSA) to the list of known hosts.
+ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com's password:
+
+Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-72-generic x86_64)
 ```
 
 2. Check to make sure you are running the correct Docker version. At a minimum you should be running `17.03 EE`
