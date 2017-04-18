@@ -24,19 +24,7 @@ In this lab, you will learn how to configure a continuous integration (CI) pipel
 > - Configure Docker Cloud Autobuilds
 > - Trigger an Autobuild
 
-## [Docker Networking](https://github.com/docker/dcus-hol-2017/tree/master/docker-networking)
 
-In this lab you will learn about key Docker Networking concepts. You will get your hands dirty by going through examples of a few basic networking concepts, learn about Bridge and Overlay networking, and finally learning about the Swarm Routing Mesh.
-
-> **Difficulty**: Beginner to Intermediate
->
-> **Time**: Approximately 45 minutes
->
-> **Tasks / Concepts**
->
-> * Networking Basics
-> * Bridge Networking
-> * Overlay Networking
 
 ## [Docker Orchestration](https://github.com/docker/dcus-hol-2017/tree/master/docker-orchestration)
 
@@ -54,23 +42,21 @@ In this lab you will play around with the container orchestration features of Do
 > * Scale the application
 > * Drain a node and reschedule the containers
 
-## [Deploying Applications with Docker EE Advanced / Docker Datacenter](https://github.com/docker/dcus-hol-2017/tree/master/docker-enterprise)
+## [Docker Orchestration Megalab](https://github.com/docker/dcus-hol-2017/tree/master/docker-enterprise)
 
-In this lab you will deploy an application on Universal Control Plane (UCP) that takes advantage of some of the latest features of Docker Datacenter. Docker Datacenter is included with Docker EE Standard and Docker EE Advanced. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
-
-> **Difficulty**: Intermediate
+> **Difficulty**: Intermediate to Advanced
 >
 > **Time**: Approximately 45 minutes
 >
 > **Tasks / Concepts**
 > 
-> * Docker services
-> * Application scaling and failure mitigation
-> * Layer 7 load balancing
+> * Deploy a full 3-node Swarm & UCP cluster
+> * Deploy a multi-service, multi-node application
+> * Simulate a node failure
+> * Use application load balancing
 > * Overlay networking
 > * Application secrets
-> * Application health checks
-> * RBAC-based control and visibility with teams
+> * Application health checks and self-healing apps
 
 ## [Securing Apps with Docker EE Advanced / Docker Trusted Registry](https://github.com/docker/dcus-hol-2017/tree/master/securing-apps-docker-enterprise)
 
@@ -86,6 +72,21 @@ In this lab you will integrate Docker EE Advanced in to your development pipelin
 > * Build a Docker Application
 > * Pushing and Scanning Docker Images
 > * Remediating Application Vulnerabilities
+
+
+## [Docker Networking](https://github.com/docker/dcus-hol-2017/tree/master/docker-networking)
+
+In this lab you will learn about key Docker Networking concepts. You will get your hands dirty by going through examples of a few basic networking concepts, learn about Bridge and Overlay networking, and finally learning about the Swarm Routing Mesh.
+
+> **Difficulty**: Beginner to Intermediate
+>
+> **Time**: Approximately 45 minutes
+>
+> **Tasks / Concepts**
+>
+> * Networking Basics
+> * Bridge Networking
+> * Overlay Networking
 
 ## [Windows Docker Containers 101](https://github.com/docker/dcus-hol-2017/tree/master/windows-101)
 
