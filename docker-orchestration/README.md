@@ -186,7 +186,7 @@ $ ssh ubuntu@<node1-b IP address>
 
 Now, take that entire `docker swarm join ...` command we copied earlier from `node0-a` where it was displayed as terminal output. We need to paste the copied command into the terminal of **node1-b** and **node2-c**.
 
-It should look something like this for **node1-b**.
+It should look something like this for **node1-b**. By the way, if the `docker swarm join ...` command scrolled off your screen already, you can run the `docker swarm join-token worker` command on the Manager node to get it again.
 
 ```
 $ docker swarm join \
