@@ -8,7 +8,6 @@ In this lab you will deploy an application on Universal Control Plane (UCP) that
 - Overlay networking
 - Application secrets
 - Application health checks
-- RBAC-based control and visibility with teams
 
 > **Difficulty**: Intermediate
 
@@ -94,7 +93,7 @@ You will have to supply the following values to the install command:
 ```
 docker run --rm -it --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
-docker/ucp:2.1.1 install \
+docker/ucp:2.1.3 install \
 --admin-username admin \
 --admin-password <your-password> \
 --san <node0-public-dns> \
