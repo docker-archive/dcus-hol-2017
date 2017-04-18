@@ -114,7 +114,7 @@ admin.py  app.py  Dockerfile  static  templates
 
 ```
 ~/docker-pets/web $ cat Dockerfile
-FROM alpine:3.4
+FROM alpine:3.3
 
 RUN apk --no-cache add py-pip libpq python-dev curl
 
@@ -131,7 +131,7 @@ CMD python app.py & python admin.py
 
 Our Dockerfile includes a couple notable lines:
 
-- `FROM alpine:3.4` indicates that our Application is based off of an Alpine OS base image.
+- `FROM alpine:3.3` indicates that our Application is based off of an Alpine OS base image.
 - `RUN apk` & `RUN pip` lines install software packages on top of the base OS that our applications needs.
 - `ADD / /app` adds the application code into the image.
 
@@ -142,11 +142,11 @@ Our Dockerfile includes a couple notable lines:
 ```
 ~/docker-pets/web $ docker build -t docker-pets .
 Sending build context to Docker daemon 26.55 MB
-Step 1/7 : FROM alpine:3.4
+Step 1/7 : FROM alpine:3.3
  ---> baa5d63471ea
 Step 2/7 : RUN apk --no-cache add py-pip libpq python-dev curl
  ---> Running in 382419b97267
-fetch http://dl-cdn.alpinelinux.org/alpine/v3.4/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.3/main/x86_64/APKINDEX.tar.gz
 ...
 ...
 ...
@@ -187,12 +187,29 @@ fd3ovikiq7tzmdr70zukbsgbs *  moby      Ready   Active        Leader
 ~/docker-pets $ docker stack deploy -c pets-container-compose.yml pets
 Creating network pets_backend
 Creating service pets_web
-Creating service pets_db
 ```
 
-3. Go to your browser and in the address bar type in `<node1-public-DNS>`. (The app is serving on port 80 so you don't have to specify the port). This is the address where your local app is being served. If you see something similar to the following then it is working correctly. It may take up to a minute for the app to start up, so try to refresh until it works.
+You have now deployed your application as a stack on this single node swarm cluster.
+
+3. Verify that your application has been deployed.
+
+```
+~/docker-pets $ docker ps
+CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS                    
+a73f87ba147a        docker-pets:latest   "/bin/sh -c 'pytho..."   16 minutes ago      Up 16 minutes (healthy)
+```
+
+4. Go to your browser and in the address bar type in `<node1-public-DNS>`. This is the public DNS URL that you received in your lab welcome email. (The app is serving on port 80 so you don't have to specify the port). This is the address where your local app is being served. If you see something similar to the following then it is working correctly. It may take up to a minute for the app to start up, so try to refresh until it works.
 
 ![](images/single-container-deploy.png) 
+
+5. Now remove this service.
+
+```
+~/docker-pets $ docker stack rm pets
+Removing service pets_web
+Removing network pets_default
+```
 
 ## <a name="task2"></a>Task 2: Pushing and Scanning Docker Images
 
@@ -204,7 +221,7 @@ In this lab, DTR has already been set up for you so you will log in to it and us
 
 1. Log in to DTR. Before the lab you should have been assigned a cluster and a username. Use these when logging in.
 
-Go to `https://<dtr-cluster>.dockerdemos.com` and login with your given username and password. You should see the DTR home screen.
+Go to `https://<dtr-cluster>.dockerdemos.com` and login with your given username and password from your lab welcome email. You should see the DTR home screen.
 
 ![](images/dtr-home.png) 
 
@@ -237,16 +254,22 @@ Adding certificate to '/etc/docker/certs.d/dtr.church.dckr.org/ca.crt'...done
 Verifying format of certificate...done
 ```
 
-2. Log in to DTR with your username.
+For instance if `dtr3.dockerdemos.com` was your cluster then you would issue the command:
+
+```
+docker run -it --rm -v /etc/docker:/etc/docker mbentley/trustdtr dtr3.dockerdemos.com
+```
+
+2. Log in to DTR with your username. This is the username (`userxxxx`) and password is `Docker2017!`.
 
 ```
 ~/docker-pets $ docker login <dtr-cluster>.dockerdemos.com
 Username: <username>
-Password:
+Password: <password>
 Login Succeeded
 ```
 
-3. Tag the image with the URL of your DTR cluster and with the image tag `1.0`.
+3. Tag the image with the URL of your DTR cluster and with the image tag `1.0` since this is the first version of your app.
 
 ```
 ~/docker-pets $ docker tag docker-pets <cluster-name>.dockerdemos.com/<username>/docker-pets:1.0
@@ -264,7 +287,7 @@ The push refers to a repository [dtr2.dockerdemos.com/mark/docker-pets]
 1.0: digest: sha256:809c6f80331b9d03cb099b43364b7801826f78ab36b26f00ea83988fbefb6cac size: 1163
 ```
 
-5. Go to the DTR GUI and click on your `docker-pets` repo. The image vulnerability scan should have started already and DTR will display the status of the scan. Once the scan is complete, DTR will display the number of vulnerabilities found. For the `docker-pets` image a critical vulnerability was found.
+5. Go to the DTR GUI, click on your `docker-pets` repo, and click Images. The image vulnerability scan should have started already and DTR will display the status of the scan. Once the scan is complete, DTR will display the number of vulnerabilities found. For the `docker-pets` image a critical vulnerability was found.
 
 ![](images/scan-status.png) 
 
@@ -284,17 +307,18 @@ We have built and pushed our application to DTR. DTR image scanning identified a
 
 ### <a name="Task 3.1"></a>Task 3.1: Rebuild the Image
 
-We identified that our application has the known vulnerability `CVE-2016-8859`. We can see in the Layers tab that the affected package `musl 1.1.14-r14` is located in the top layer of our image. This is the base layer that was specified in the Dockerfile as `FROM alpine:3.4`. To remediate this we are going to use a more recent version of the `alpine` image, one that has this vulnerability fixed.
+We identified that our application has the known vulnerability `CVE-2016-8859`. We can see in the Layers tab that the affected package `musl 1.1.14-r14` is located in the top layer of our image. This is the base layer that was specified in the Dockerfile as `FROM alpine:3.3`. To remediate this we are going to use a more recent version of the `alpine` image, one that has this vulnerability fixed.
 
 1. Go to the `~/docker-pets/web` directory and edit the Dockerfile.
 
 ```
+~/docker-pets $ cd web
 ~/docker-pets/web $ vi Dockerfile
 ```
 
-2. Change the top line `FROM alpine:3.3` to `FROM alpine:3.4`. `alpine:3.4` is  newer version of the base OS that has this vulnerability fixed.
+2. Change the top line `FROM alpine:3.3` to `FROM alpine:3.5`. `alpine:3.5` is  newer version of the base OS that has this vulnerability fixed.
 
-3. Rebuild the image. 
+3. Rebuild the image as version `2.0`
 
 ```
 ~/docker-pets/web $ docker build -t docker-pets .
@@ -304,24 +328,20 @@ We identified that our application has the known vulnerability `CVE-2016-8859`. 
 4. Tag the image as the `2.0` and also with the DTR URL.
 
 ```
-~/docker-pets $ docker tag docker-pets <dtr-cluster>.dockerdemos.com/<username>/docker-pets:2.0
+~/docker-pets/web $ docker tag docker-pets <dtr-cluster>.dockerdemos.com/<username>/docker-pets:2.0
 ```
 
-5. Re-deploy the image locally to ensure that the change did not break the app.
+5. Move back to the `docker-pets` directory and deploy the image locally again to ensure that the change did not break the app.
 
 ```
 ~/docker-pets/web $ cd ..
 
 ~/docker-pets $ docker stack deploy -c pets-container-compose.yml pets
-Updating service pets_db (id: nv2lehghp7p6dpx0e57rur570)
-Updating service pets_web (id: 3f3lerya83x6a3zapc706yg23)
-unable to pin image docker-pets to digest: errors:
-denied: requested access to the resource is denied
-unauthorized: authentication required
+Creating network pets_backend
+Creating service pets_web
 ```
-The error message is expected and is only printed because we are deploying from a local image that is not in the public registry.
 
-6. Go to your browser and in the address pane type in `<node-public-ip`>. You should see that the app has succesfully deployed with the new change.
+6. Go to your browser and in the address pane type in `<node-public-ip>`. You should see that the app has succesfully deployed with the new change.
 
 ### <a name="Task 3.2"></a>Task 3.2: Rescan the Remediated Application
 
@@ -337,6 +357,7 @@ We have now remediated the fix and verified that the new version works when depl
 
 > You may need to refresh the page to show the status of a scan
 
+![](images/clean.png) 
 
 Congratulations! You just built an application, discovered a security vulnerability, and patched it in just a few easy steps. Pat yourself on the back for helping create safer apps!!
 
