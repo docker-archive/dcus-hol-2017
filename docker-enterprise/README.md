@@ -146,9 +146,10 @@ The string you copied will look something like the following:
 
 ```
 docker swarm join --token SWMTKN-1-5mql67at3mftfxdhoelmufv0f50id358xyyeps4gk9odgxfoym-4nqy2vbs5gzi1yhydhn20nh33 172.31.24.143:2377
+
 ```
 
-This is a Swarm join token. It is a secret token used by nodes so that they can securely join the rest of the UCP cluster.
+This is a Swarm join token. It includes the IP address of the UCP/Swarm manager so do not change it in the command. It is a secret token used by nodes so that they can securely join the rest of the UCP cluster.
  
 2. Log in to `node1`.
 
@@ -189,7 +190,7 @@ A [Docker Stack](https://docs.docker.com/engine/reference/commandline/stack_depl
 In this section we will deploy the [Docker Pets](https://github.com/mark-church/docker-paas) application using a compose file. In the following sections we will add features to our compose file and make our application progressively more complex and feature-full. Docker Pets is a simple web app that records votes for different animals and uses a persistent backend to record the votes. It's comprised of two images:
 
 - **`chrch/docker-pets`** is a front-end Python Flask container that serves up random images of housepets, depending on the given configuration
-- **`consul`** is a back-end KV store that stores the number of visits that the web services recieve. It's configured to bootstrap itself with 3 replicas so that we have fault tolerant persistence.
+- **`consul`** (which will be used in a later compose file) is a back-end KV store that stores the number of visits that the web services recieve. It's configured to bootstrap itself with 3 replicas so that we have fault tolerant persistence.
 
 This is the first iteration of our compose file for the Docker Pets application:
 
@@ -200,6 +201,8 @@ services:
         image: chrch/docker-pets:latest
         ports:
             - 5000
+        deploy:
+            replicas: 2
         healthcheck:
             interval: 10s
             timeout: 2s
@@ -214,7 +217,11 @@ services:
 
 ### <a name="task2.1"></a>Task 2.1: Okay, Let's Deploy!
 
-1. Log in to your UCP GUI and go to Resources / Stacks & Applications / Deploy. Paste the above compose file text into the box under Application Definition. In the Application Name box write `pets`. Click the Create button.
+1. Log in to your UCP GUI and go to Resources / Stacks & Applications. Click Deploy. 
+
+![](images/deploy-button.png)
+
+Paste the above compose file text into the box under Application Definition. In the Application Name box write `pets`. Click the Create button.
 
 ![](images/deploy.png) 
 
@@ -225,17 +232,16 @@ Creating network pets_default
 Creating service pets_web
 ```
 
-Your `pets` application stack is now deployed and live! It's running as a single stateless container and serving up a web page. 
+Your `pets` application stack is now deployed and live! It's running as two stateless containers   serving up a web page. 
 
 2. Go to Resources and click on the stack that you just deployed. You will see that we deployed a service called `pets_web` and a network called `pets_default`. Click on the `pets_web` service and you will see all of the configured options for this service. Some of these are taken from our compose file and some are default options.
 
 ![](images/stack.png) 
 
-3. Go to Resources / Networks and you will see that a new overlay network called `pets_default` now exists.
 
-4. On the bottom of the `pets_web` page, UCP will show what ports it is exposing the application on. In your browser go to the public IP of one of your worker nodes and the port that is listed `<public-ip>:<published-port>`.
+3. On the bottom of the `pets_web` page, UCP will show what ports it is exposing the application on. Click on this link. It will take you to the IP:port of where your application is being served.
 
-![](images/published-port.png) 
+![](images/exposed-port.png) 
 
 In your browser you should now see the deployed Docker Pets app. It serves up an image of different pets. Click on "Serve Another Pet" and it will reload the picture.
 
@@ -245,7 +251,7 @@ In your browser you should now see the deployed Docker Pets app. It serves up an
 
 So far we have deployed a service as a single container. Our application will need some level of redundancy in case there is a crash or node failure, so we are going to scale the `web` service so that it's made of multiple containers running on different hosts.
 
-1. Go to Resources / Services / `pets_web`/ Scheduling. Edit the Scale parameter and change it from `1` to `3`. Click the checkmark and then Save Changes. After a few moments on the Services page we can see that the Status will change to `3/3` as the new container is scheduled and deployed in the cluster. Click on `pets_web` / Tasks. It shows the nodes where our `web` containers were deployed on. 
+1. Go to Resources / Services / `pets_web`/ Scheduling. Edit the Scale parameter and change it from `2` to `3`. Click the checkmark and then Save Changes. After a few moments on the Services page we can see that the Status will change to `3/3` as the new container is scheduled and deployed in the cluster. Click on `pets_web` / Tasks. It shows the nodes where our `web` containers were deployed on. 
 
 ![](images/tasks.png) 
 
@@ -255,7 +261,7 @@ So far we have deployed a service as a single container. Our application will ne
 
 Now we are going to deploy a second service along with our Docker Pets application. It's called the Visualizer and it visually shows how containers are scheduled across a UCP cluster.
 
-Now we are going to update the `pets` stack with the following compose file. We have added a couple things to this compose file.
+Now we are going to update the `pets` stack with the following compose file. We have added a couple things to this compose file. You are going to copy the entire compose file below and place it in to the application deployment field.
 
 ```
 version: '3.1'
@@ -300,7 +306,7 @@ Creating service pets_visualizer
 
 The `pets_visualizer` service is created and our existing `pets_web` service is updated. Because no `pets_web` parameters were changed in this compose file, there are no actions done to the `web` containers.
 
-2. Go to the `<external-ip>:<port>` that is listed on the page of the 	`pets_visualizer` service in your browser window. This shows you the nodes of your UCP cluster and where containers are scheduled. You should see that the `pets_web` container is evenly distributed across your nodes.
+2. Go to the `<external-ip>:<port>` that is listed on the bottom of the page of the 	`pets_visualizer` service in your browser window. This shows you the nodes of your UCP cluster and where containers are scheduled. You should see that the `pets_web` container is evenly distributed across your nodes.
 
 ![](images/visualizer.png) 
 
