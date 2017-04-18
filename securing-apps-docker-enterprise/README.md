@@ -362,6 +362,13 @@ We have now remediated the fix and verified that the new version works when depl
 Congratulations! You just built an application, discovered a security vulnerability, and patched it in just a few easy steps. Pat yourself on the back for helping create safer apps!!
 
 
+### <a name="cleanup"></a>Lab Clean Up
 
+If you plan to do other labs with these lab nodes then make sure to clean up after yourself! Run the following command and make sure that you remove any running containers.
+
+```
+~/docker-pets $ docker swarm leave --force
+Node left the swarm.
+```
 
 
