@@ -55,15 +55,15 @@ The following task will guide you through how to create a UCP cluster on your ho
 ### <a name="task1.1"></a>Task 1.1: Installing the UCP Manager
 Each of the Linux lab nodes will have a unique password that is in your email.
 
-1. Log in to `node1` of the three nodes you have been given for this lab.  The username for all of the Linux nodes is `ubuntu` and the node will have a unique password that should be in your email. You may be prompted whether you want to continue. Answer `yes` and then enter the password.
+1. Log in to `node0` of the three nodes you have been given for this lab.  The username for all of the Linux nodes is `ubuntu` and the node will have a unique password that should be in your email. You may be prompted whether you want to continue. Answer `yes` and then enter the password.
 
 ```
-$ ssh ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com
+$ ssh ubuntu@node0-smwqii1akqh.southcentralus.cloudapp.azure.com
 
-The authenticity of host 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com (13.65.212.221)' can't be established.
+The authenticity of host 'node0-smwqii1akqh.southcentralus.cloudapp.azure.com (13.65.212.221)' can't be established.
 ECDSA key fingerprint is SHA256:BKHHGwzrRx/zIuO7zwvyq5boa/5o2cZD9OTlOlOWJvY.
 Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com,13.65.212.221' (ECDSA) to the list of known hosts.
+Warning: Permanently added 'node0-smwqii1akqh.southcentralus.cloudapp.azure.com,13.65.212.221' (ECDSA) to the list of known hosts.
 ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com's password:
 
 Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-72-generic x86_64)
@@ -98,13 +98,28 @@ You will have to supply the following values to the install command:
 - `--ucp-password` - This can be a password of your choosing
 - `--san` - This should be the public IP of `node0`
 
+You may want to open up a text editor to enter in your ucp password and `--san` value.
+
+```
+docker run --rm -it --name ucp \
+-v /var/run/docker.sock:/var/run/docker.sock \
+docker/ucp:2.1.3 install \
+--debug
+--admin-username admin \
+--admin-password <your-password> \
+--san <node0-public-dns> \
+--host-address $(hostname -i)
+```
+
+This is an example of what your final install command might look like ...
+
 ```
 docker run --rm -it --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:2.1.3 install \
 --admin-username admin \
---admin-password <your-password> \
---san <node0-public-dns> \
+--admin-password docker123 \
+--san node0-a4mlmk413or.southcentralus.cloudapp.azure.com \
 --host-address $(hostname -i)
 ```
 
@@ -116,7 +131,7 @@ Depending on what browser you are using, you will receive a warning about the co
 
 ![](images/private.png) 
 
-Log in as the user `admin` with the password that you supplied in step 3.
+Log in as the user `admin` with the password that you supplied in step 3. You will be asked to upload a license. Skip this step. You will continue the lab without the license.
 
 ![](images/ucp-login.png) 
 
@@ -135,7 +150,13 @@ docker swarm join --token SWMTKN-1-5mql67at3mftfxdhoelmufv0f50id358xyyeps4gk9odg
 
 This is a Swarm join token. It is a secret token used by nodes so that they can securely join the rest of the UCP cluster.
  
-2. Log in to one of your remaining nodes. On the command line run the Swarm join token command you copied from UCP. You will get a status message indicating that this node has joined the cluster.
+2. Log in to `node1`.
+
+```
+$ ssh ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com
+```
+
+3. On the command line run the Swarm join token command you copied from UCP. You will get a status message indicating that this node has joined the cluster.
 
 ```
 $ docker swarm join \
@@ -146,11 +167,13 @@ This node joined a swarm as a worker.
 
 This indicates that this node is now joining your UCP cluster.
 
-3. Repeat steps 1 & 2 for all of your remaining nodes.
+4. Repeat steps 1 & 2 for `node2`
 
-4. Go to the UCP GUI and click on Resources / Nodes. You should now see that all of your nodes listed with their respective role as Manager or Worker.
+5. Go to the UCP GUI and click on Resources / Nodes. You should now see that all of your nodes listed with their respective role as Manager or Worker.
 
-Congratulations! You have successfully installed and deployed a full UCP cluster. You are now ready to move on to the rest of the lab.
+![](images/hosts.png) 
+
+Congratulations! You have successfully installed and deployed a full UCP cluster. Wasn't that easy? You are now ready to move on to the rest of the lab.
 
 ## <a name="Task 2"></a>Task 2: Deploying a Simple Application with Compose
 
