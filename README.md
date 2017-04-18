@@ -26,7 +26,7 @@ In this lab, you will learn how to configure a continuous integration (CI) pipel
 
 
 
-## [Docker Orchestration](https://github.com/docker/dcus-hol-2017/tree/master/docker-orchestration)
+## [Docker Swarm Orchestration Beginner](https://github.com/docker/dcus-hol-2017/tree/master/docker-orchestration)
 
 In this lab you will play around with the container orchestration features of Docker. You will deploy a simple application to a single host and learn how that works. Then, you will configure Docker Swarm Mode, and learn to deploy the same simple application across multiple hosts. You will then see how to scale the application and move the workload across different hosts easily.
 
@@ -42,7 +42,7 @@ In this lab you will play around with the container orchestration features of Do
 > * Scale the application
 > * Drain a node and reschedule the containers
 
-## [Docker Orchestration Megalab](https://github.com/docker/dcus-hol-2017/tree/master/docker-enterprise)
+## [Docker Swarm Orchestration Advanced](https://github.com/docker/dcus-hol-2017/tree/master/docker-enterprise)
 
 > **Difficulty**: Intermediate to Advanced
 >
@@ -51,6 +51,7 @@ In this lab you will play around with the container orchestration features of Do
 > **Tasks / Concepts**
 > 
 > * Deploy a full 3-node Swarm & UCP cluster
+> * Use the Swarm UI
 > * Deploy a multi-service, multi-node application
 > * Simulate a node failure
 > * Use application load balancing
