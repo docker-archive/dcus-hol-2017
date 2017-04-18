@@ -94,7 +94,6 @@ You will have to supply the following values to the install command:
 ```
 docker run --rm -it --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
--v ~/docker_subscription.lic:/docker_subscription.lic \
 docker/ucp:2.1.1 install \
 --admin-username admin \
 --admin-password <your-password> \
