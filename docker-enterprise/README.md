@@ -119,7 +119,7 @@ docker run --rm -it --name ucp \
 docker/ucp:2.1.3 install \
 --admin-username admin \
 --admin-password docker123 \
---san node0-a4mlmk413or.southcentralus.cloudapp.azure.com \
+--san node0-XXXXXXX.southcentralus.cloudapp.azure.com \
 --host-address $(hostname -i)
 ```
 
