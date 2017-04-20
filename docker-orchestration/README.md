@@ -46,7 +46,7 @@ $ ssh ubuntu@<node1-b IP address>
 And, finally **node2-c**.
 
 ```
-$ ssh ubuntu@<node1-b IP address>
+$ ssh ubuntu@<node2-с IP address>
 ```
 
 # <a name="basics"></a>Section 1: What is Orchestration
