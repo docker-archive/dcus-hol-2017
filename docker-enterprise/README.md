@@ -104,7 +104,7 @@ You may want to open up a text editor to enter in your ucp password and `--san` 
 docker run --rm -it --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:2.1.3 install \
---debug
+--debug \
 --admin-username admin \
 --admin-password <your-password> \
 --san <node0-public-dns> \
