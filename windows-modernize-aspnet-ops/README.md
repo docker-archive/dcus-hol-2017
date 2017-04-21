@@ -251,6 +251,8 @@ Each VM will join as a worker - which takes about a second. While you're connect
 docker pull --all-tags <DockerID>/modernize-aspnet-ops
 ```
 
+_This step is not strictly required, but will make subsequent steps complete faster._
+
 You can close the RDP sessions for VM 2 and 3 now - you will be managing the swarm from the original VM.
 
 ## <a name="task3.2"></a>Task 3.2: Run application version 1.0 as a service
@@ -264,6 +266,7 @@ docker service create `
   --name sample `
   --publish mode=host,target=80,published=80 `
   --replicas=3 `
+  --with-registry-auth `
   <DockerID>/modernize-aspnet-ops:1.0
 ```
 
@@ -297,7 +300,7 @@ In a highly-available swarm where you have a service running in many containers 
 To update your service to version 1.1, run:
 
 ```
-docker service update --image <DockerId>/modernize-aspnet-ops:1.1 sample
+docker service update --with-registry-auth --image <DockerId>/modernize-aspnet-ops:1.1 sample
 ```
 
 That tells Docker to update the `sample` service to version `1.1` of the image. There's no load balancer in front of your lab VMs so you won't see the full zero-downtime deployment. 
@@ -307,7 +310,7 @@ Browse to VM 2 on your laptop and refresh the site while the update happens. You
 Automated updates are a huge benefit of the Docker platform. Updating a distributed application in a safe, automated way takes all the risk out of deployments, and makes frequent releases possible. If you don't like the new color scheme in v1.1 you can easily roll back to v1.0:
 
 ```
-docker service update --rollback sample
+docker service update --with-registry-auth --rollback sample
 ```
 
 Rolling back is conceptually the same as updating. The existing containers are stopped, and new containers created using the original image version. Browse to the site now and you will see version 1.0 running again. Automated rollback may be an even bigger benefit than automatic update. Knowing you can revert to the previous good version without any downtime and without a lengthy manual procedure gives you confidence in your deployment process, even if there are problems in the application itself.
