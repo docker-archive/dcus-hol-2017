@@ -30,6 +30,7 @@ In this lab you will deploy an application on Universal Control Plane (UCP) that
 >   * [Task 3.2: Configuring Application Secrets](#task3.2)
 >   * [Task 3.3: Using Healthchecks to Control Application Lifecycle](#task3.3)
 >   * [Task 3.4: Upgrading with a Rolling Update](#task3.4)
+>   * [Task 3.5: Configuring Layer 7 Load Balancing](#task3.5)
 
 ## Document conventions
 
@@ -37,23 +38,21 @@ When you encounter a phrase in between `<` and `>`  you are meant to substitute 
 
 For instance if you see `https://<node0-dns-name>` you would actually type something like `https://node0-smwqii1akqh.southcentralus.cloudapp.azure.com`.
 
-You will be asked to SSH into various nodes. In this lab these nodes are referred to as `node0`, `node1`, and `node2`, but you will use the full DNS name. The full DNS name will look something like the following:
-
-- `node0-smwqii1akqh.southcentralus.cloudapp.azure.com`
-- `node1-smwqii1akqh.southcentralus.cloudapp.azure.com`
-- `node2-smwqii1akqh.southcentralus.cloudapp.azure.com`
+You will be asked to SSH into various nodes. In this lab these nodes are referred to as `node0`, `node1`, and `node2`, but you will use the full DNS name or IP address of the node.
 
 ## <a name="prerequisites"></a>Prerequisites
 
 This lab is best done on three separate nodes, though it can be done with a single one. The requirements are as follows:
 
-- 3 Nodes with Docker Enterprise 17.03+ each installed on each
+- 3 Linux hosts on a version and distribution that support Docker
+- Docker Engine 17.03 EE (or higher) installed on each node
+- Open network access between the nodes
+- Ports `443` and `30000` - `30005` open on the lab nodes externally to the lab user
 
 ## <a name="task1"></a>Task 1: Installing UCP
 The following task will guide you through how to create a UCP cluster on your hosts.
 
 ### <a name="task1.1"></a>Task 1.1: Installing the UCP Manager
-Each of the Linux lab nodes will have a unique password that is in your email.
 
 1. Log in to `node0` of the three nodes you have been given for this lab.  The username for all of the Linux nodes is `ubuntu` and the node will have a unique password that should be in your email. You may be prompted whether you want to continue. Answer `yes` and then enter the password.
 
@@ -137,6 +136,17 @@ Log in as the user `admin` with the password that you supplied in step 3. You wi
 
 You now have a UCP cluster with a single node. Next you are going to add two nodes to the cluster. These nodes are known as Worker nodes and are the nodes that host application containers. 
 
+### Optional: Add Manager Nodes for Cluster High Availability
+
+This is not a requirement for the lab but is a best practice for any production clusters.
+
+1. In the UCP GUI, click through to Resources / Nodes. Click "+ Add Node" and check the box "Add node as a manager"
+
+2. On the same screen click "Copy to Clipboard." This will copy the UCP join command.
+
+3. Log in to the other nodes that you would like to configure as managers and paste this join command on the CLI. 
+
+
 ### <a name="Task 1.2"></a>Task 1.2: Joining UCP Worker Nodes
 
 
@@ -198,7 +208,7 @@ This is the first iteration of our compose file for the Docker Pets application:
 version: '3.1'
 services:
     web:
-        image: chrch/docker-pets:latest
+        image: chrch/docker-pets:1.0
         ports:
             - 5000
         deploy:
@@ -211,7 +221,7 @@ services:
 
 - `version: '3.1'` is the version of the compose format we are using.
 - `web:` is the name that we are giving this service.
-- `image: chrch/docker-pets:1.1` defines the image and version that we are deploying in this service.
+- `image: chrch/docker-pets:1.0` defines the image and version that we are deploying in this service.
 - `ports:` configures the ports that we expose for our application. Our application listens on port `5000` so we are exposing port `5000` internally and mapping it to a random ephemeral port externally. UCP will take care of the port mapping and application load balancing for us.
 - `healthcheck:` defines the health check for our application. We are setting the `interval` for how often the check runs and how many `timeouts` we allow before we consider the container to be unhealthy.
 
@@ -267,7 +277,7 @@ Now we are going to update the `pets` stack with the following compose file. We 
 version: '3.1'
 services:
     web:
-        image: chrch/docker-pets:latest
+        image: chrch/docker-pets:1.0
         deploy:
             replicas: 3
         ports:
@@ -358,7 +368,7 @@ In this step we will deploy a new compose file that adds functionality on top of
 version: '3.1'
 services:
     web:
-        image: chrch/docker-pets:latest
+        image: chrch/docker-pets:1.0
         deploy:
             replicas: 3
         ports:
@@ -443,7 +453,7 @@ This secret will now be stored encrypted in the UCP data store. When application
 version: '3.1'
 services:
     web:
-        image: chrch/docker-pets:latest
+        image: chrch/docker-pets:1.0
         deploy:
             replicas: 3
         ports:
@@ -559,6 +569,89 @@ These values mean that during a rolling update, containers will be updated `1` c
 8. Repeat step 2 with the same values and click Save Changes.
 
 9. Observe a successful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health. Now go to the `<host-ip>:<port>` that corresponds to the internal port `5000`. After a couple refreshes you should see that some of the containers have already updated.
+
+10. Before you go on to the next section, delete the `pets` stack.
+
+### <a name="task3.5"></a>Task 3.5: Configuring Layer 7 Load Balancing
+
+Layer 7 load balancing in UCP can be provided by a feature called the HTTP Routing Mesh (HRM). In this section of the lab we configure HRM for several different ports and endpoints of `docker-pets`.
+
+This part of the lab requires external configuration of DNS. An external DNS provider like AWS or an internal DNS should be configured for this lab. The details of the DNS configuration is outside the scope of the tutorial.
+
+Setup: Configure a wildcard DNS entry `*.<yourdomain.com>`. You will insert your URL for `<yourdomain.com>`. You can configure this DNS record to point to a load balancer that balances across multiple UCP nodes. For a simpler configuration, you can also use the IP address of any UCP node as this DNS record.  
+
+1. In the UCP GUI go to Admin Settings / Routing Mesh. In this window, check the box to enable the routing mesh and ensure that it is serving HTTP traffic on port `80`.
+
+![](images/routing-mesh.png)
+
+2. Deploy the following compose file as the `pets` stack. Input your configured URL for `<yourdomain.com>`. In this step we are configuring three URLs, `vote.*`, `admin.*`, and `viz.*` for three different services provided by the app. Go to these URLs and ensure that they are working correctly.
+
+```
+version: '3.1'
+services:
+    web:
+        image: chrch/docker-pets:1.0
+        deploy:
+            replicas: 3
+        ports:
+            - 5000
+            - 7000
+        labels:
+                com.docker.ucp.mesh.http.5000: "external_route=http://vote.<yourdomain.com>,internal_port=5000"
+                com.docker.ucp.mesh.http.7000: "external_route=http://admin.<yourdomain.com>,internal_port=7000,sticky_sessions=paas_admin_id"
+
+        healthcheck:
+            interval: 10s
+            timeout: 2s
+            retries: 3
+        environment:
+            DB: 'db'
+            ADMIN_PASSWORD_FILE: '/run/secrets/admin_password'
+        networks:
+        	  - backend
+        	  - ucp-hrm
+        secrets:
+            - admin_password
+            
+    db:
+        image: consul:0.7.2
+        command: agent -server -ui -client=0.0.0.0 -bootstrap-expect=3 -retry-join=db -retry-join=db -retry-join=db -retry-interval 5s
+        deploy:
+            replicas: 3
+        ports:
+            - 8500 
+        environment:
+            CONSUL_BIND_INTERFACE: 'eth2'
+            CONSUL_LOCAL_CONFIG: '{"skip_leave_on_interrupt": true}'
+        networks: 
+            - backend
+
+            
+    visualizer:
+        image: manomarks/visualizer
+        ports:
+            - 8080
+        labels:
+            com.docker.ucp.mesh.http.8080: "external_route=http://viz.<yourdomain.com>,internal_port=8080"
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks: 
+            - ucp-hrm
+    
+networks:
+    backend:
+    ucp-hrm:
+        external: true
+
+secrets:
+    admin_password:
+        external: true
+```
+
+
 
 
 ### Congratulations, you have completed the lab!!
