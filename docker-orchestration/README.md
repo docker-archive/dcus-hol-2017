@@ -46,7 +46,7 @@ $ ssh ubuntu@<node1-b IP address>
 And, finally **node2-c**.
 
 ```
-$ ssh ubuntu@<node1-b IP address>
+$ ssh ubuntu@<node2-с IP address>
 ```
 
 # <a name="basics"></a>Section 1: What is Orchestration
@@ -57,7 +57,7 @@ Deploying your application without Orchestration is typically very time consumin
 
 But, with Orchestration tooling, you can typically off-load much of this manual work and let automation do the heavy lifting. One cool feature of Orchestration with Docker Swarm, is that you can deploy an application across many hosts with only a single command (once Swarm mode is enabled). Plus, if one of the supporting nodes dies in your Docker Swarm, other nodes will automatically pick up load, and your application will continue to hum along as usual.
 
-If you are typically only using `docker run` to deploy your applications, then you could likely really benefit from using Docker Compose, Docker Swarm modem, and both Docker Compose and Swarm.
+If you are typically only using `docker run` to deploy your applications, then you could likely really benefit from using Docker Compose, Docker Swarm mode, and both Docker Compose and Swarm.
 
 # <a name="start-cluster"></a>Section 2: Configure Swarm Mode
 
