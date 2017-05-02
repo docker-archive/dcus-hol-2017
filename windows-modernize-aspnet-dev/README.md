@@ -69,7 +69,7 @@ cd C:\scm\github\docker
 git clone https://github.com/docker/dcus-hol-2017.git
 ```
 
-Now clear up anything left from a previous lab. You only need to do this if you have used this VM for one of the other Windows labs, but you can run it sefaly to restore Docker to a clean state. 
+Now clear up anything left from a previous lab. You only need to do this if you have used this VM for one of the other Windows labs, but you can run it safely to restore Docker to a clean state. 
 
 This stops and removes all running containers, and then leaves the swarm - ignore any error messages you see:
 
