@@ -27,34 +27,26 @@ In this lab you will integrate Docker EE Advanced in to your development pipelin
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
-For instance if you see `https://<node0-dns-name>` you would actually type something like `https://node0-smwqii1akqh.southcentralus.cloudapp.azure.com`.
-
-You will be asked to SSH into various nodes. In this lab these nodes are referred to as `node0`, `node1`, and `node2`, but you will use the full DNS name. The full DNS name will look something like the following:
-
-- `node0-smwqii1akqh.southcentralus.cloudapp.azure.com`
-- `node1-smwqii1akqh.southcentralus.cloudapp.azure.com`
-- `node2-smwqii1akqh.southcentralus.cloudapp.azure.com`
+Your nodes may be using private IP addresses along with mapped public IP addresses or the lab environment may be entirely private. We will be referring to these IPs as `node0-private-ip`, `node0-public-ip`, or `node0-public-dns`. If you are using only private IPs then you will replace the `public` IP/DNS with the private equivalent.
 
 
 ## <a name="prerequisites"></a>Prerequisites
 
 This lab requires an instance of Docker Trusted Registry. This lab provides DTR for you. If you are creating this lab yourself then you can see how to install DTR [here.](https://docs.docker.com/datacenter/dtr/2.2/guides/admin/install/)
 
-In addition to DTR, this lab requires a node with Docker EE 17.03+ installed. Feel free to run this lab on Docker for Mac or Docker for Windows if you have it. Otherwise, use `node1` of the Linux nodes that were provided to you.
+In addition to DTR, this lab requires a single node with Docker Enterprise Edition installed on it. Docker EE installation instructions can be found here. The nodes can be in a cloud provider environment or on locally hosted VMs. For the remainer of the lab we will refer to this node as `node0`
 
 
-Each of the Linux lab nodes will have a unique password.
-
-1. Log in to `node1` of the three nodes you have been given for this lab.  The username for all of the Linux nodes is `ubuntu` and the node will have a unique password that should be in your email. You may be prompted whether you want to continue. Answer `yes` and then enter the password.
+1. Log in to `node0` 
 
 ```
-$ ssh ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com
+$ ssh ubuntu@node-smwqii1akqh.southcentralus.cloudapp.azure.com
 
-The authenticity of host 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com (13.65.212.221)' can't be established.
+The authenticity of host 'node-smwqii1akqh.southcentralus.cloudapp.azure.com (13.65.212.221)' can't be established.
 ECDSA key fingerprint is SHA256:BKHHGwzrRx/zIuO7zwvyq5boa/5o2cZD9OTlOlOWJvY.
 Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added 'node1-smwqii1akqh.southcentralus.cloudapp.azure.com,13.65.212.221' (ECDSA) to the list of known hosts.
-ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com's password:
+Warning: Permanently added 'node-smwqii1akqh.southcentralus.cloudapp.azure.com,13.65.212.221' (ECDSA) to the list of known hosts.
+ubuntu@node-smwqii1akqh.southcentralus.cloudapp.azure.com's password:
 
 Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-72-generic x86_64)
 ```
@@ -199,7 +191,7 @@ CONTAINER ID        IMAGE                COMMAND                  CREATED       
 a73f87ba147a        docker-pets:latest   "/bin/sh -c 'pytho..."   16 minutes ago      Up 16 minutes (healthy)
 ```
 
-4. Go to your browser and in the address bar type in `<node1-public-DNS>`. This is the public DNS URL that you received in your lab welcome email. (The app is serving on port 80 so you don't have to specify the port). This is the address where your local app is being served. If you see something similar to the following then it is working correctly. It may take up to a minute for the app to start up, so try to refresh until it works.
+4. Go to your browser and in the address bar type in `<node0-public-DNS>`. (The app is serving on port 80 so you don't have to specify the port). This is the address where your local app is being served. If you see something similar to the following then it is working correctly. It may take up to a minute for the app to start up, so try to refresh until it works.
 
 ![](images/single-container-deploy.png) 
 
@@ -341,7 +333,7 @@ Creating network pets_backend
 Creating service pets_web
 ```
 
-6. Go to your browser and in the address pane type in `<node-public-ip>`. You should see that the app has succesfully deployed with the new change.
+6. Go to your browser and in the address pane type in `<node0-public-ip>`. You should see that the app has succesfully deployed with the new change.
 
 ### <a name="Task 3.2"></a>Task 3.2: Rescan the Remediated Application
 
