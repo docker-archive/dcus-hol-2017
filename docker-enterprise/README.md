@@ -1,6 +1,6 @@
-# Deploying Applications with Docker EE Advanced / Docker Datacenter
+# Application Orchestration with Docker Enterprise Edition
 
-In this lab you will deploy an application on Universal Control Plane (UCP) that takes advantage of some of the latest features of Docker Datacenter. Docker Datacenter is included with Docker EE Standard and Docker EE Advanced. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
+In this lab you will deploy an application on Docker Enterprise Edition that takes advantage of some of the latest features of Docker Universal Control Plane (UCP). UCP is an included component of Docker EE Standard and Docker EE Advanced. The tutorial will lead you through building a compose file that can deploy a full application on UCP in one click. Capabilities that you will use in this application deployment include:
 
 - Docker services
 - Application scaling and failure mitigation
@@ -11,7 +11,7 @@ In this lab you will deploy an application on Universal Control Plane (UCP) that
 
 > **Difficulty**: Intermediate
 
-> **Time**: Approximately 50 minutes
+> **Time**: Approximately 45 - 60 minutes
 
 
 > **Tasks**:
@@ -36,9 +36,6 @@ In this lab you will deploy an application on Universal Control Plane (UCP) that
 
 When you encounter a phrase in between `<` and `>`  you are meant to substitute in a different value. 
 
-For instance if you see `https://<node0-dns-name>` you would actually type something like `https://node0-smwqii1akqh.southcentralus.cloudapp.azure.com`.
-
-You will be asked to SSH into various nodes. In this lab these nodes are referred to as `node0`, `node1`, and `node2`, but you will use the full DNS name or IP address of the node.
 
 ## <a name="prerequisites"></a>Prerequisites
 
@@ -48,6 +45,12 @@ This lab is best done on three separate nodes, though it can be done with a sing
 - Docker Engine 17.03 EE (or higher) installed on each node
 - Open network access between the nodes
 - Ports `443` and `30000` - `30005` open on the lab nodes externally to the lab user
+
+Docker EE needs to be installed on each node. Docker EE installation instructions can be found here. The nodes can be in a cloud provider environment or on locally hosted VMs.
+
+For the remainder of this lab the three nodes will be referred to as `node0`, `node1`, and `node2`.
+
+Your nodes may be using private IP addresses along with mapped public IP addresses or the lab environment may be entirely private. We will be referring to these IPs as `node0-private-ip`, `node0-public-ip`, or `node0-public-dns`. If you are using only private IPs then you will replace the `public` IP/DNS with the private equivalent.
 
 ## <a name="task1"></a>Task 1: Installing UCP
 The following task will guide you through how to create a UCP cluster on your hosts.
@@ -107,7 +110,7 @@ docker/ucp:2.1.3 install \
 --admin-username admin \
 --admin-password <your-password> \
 --san <node0-public-dns> \
---host-address $(hostname -i)
+--host-address <node0-private-ip>
 ```
 
 This is an example of what your final install command might look like ...
@@ -117,9 +120,9 @@ docker run --rm -it --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:2.1.3 install \
 --admin-username admin \
---admin-password docker123 \
---san node0-XXXXXXX.southcentralus.cloudapp.azure.com \
---host-address $(hostname -i)
+--admin-password <your-password> \
+--san <node0-public-dns> \
+--host-address <node0-private-ip>
 ```
 
 It will take up to 30 seconds to install.
@@ -164,7 +167,7 @@ This is a Swarm join token. It includes the IP address of the UCP/Swarm manager 
 2. Log in to `node1`.
 
 ```
-$ ssh ubuntu@node1-smwqii1akqh.southcentralus.cloudapp.azure.com
+$ ssh ubuntu@<node1-public-ip>
 ```
 
 3. On the command line run the Swarm join token command you copied from UCP. You will get a status message indicating that this node has joined the cluster.
@@ -265,7 +268,7 @@ So far we have deployed a service as a single container. Our application will ne
 
 ![](images/tasks.png) 
 
-2. Now go back to the application `<public-ip>:<published-port>` in your browser. Click Server Another Pet a few times to see the page get reloaded. You should see the Container ID changing between three different values. UCP is automatically load balancing your requests between the three containers in the `pets_web` service.
+2. Now go back to the application `<node1-public-ip>:<published-port>` in your browser. Click Server Another Pet a few times to see the page get reloaded. You should see the Container ID changing between three different values. UCP is automatically load balancing your requests between the three containers in the `pets_web` service.
 
 ### <a name="task2.3"></a>Task 2.3: Deploying the Visualizer App
 
@@ -316,7 +319,7 @@ Creating service pets_visualizer
 
 The `pets_visualizer` service is created and our existing `pets_web` service is updated. Because no `pets_web` parameters were changed in this compose file, there are no actions done to the `web` containers.
 
-2. Go to the `<external-ip>:<port>` that is listed on the bottom of the page of the 	`pets_visualizer` service in your browser window. This shows you the nodes of your UCP cluster and where containers are scheduled. You should see that the `pets_web` container is evenly distributed across your nodes.
+2. Go to the `<node1-public-ip>:<published-port` that is listed on the bottom of the page of the 	`pets_visualizer` service in your browser window. This could actually be any of your three nodes because all traffic is being load balanced. This shows you the nodes of your UCP cluster and where containers are scheduled. You should see that the `pets_web` container is evenly distributed across your nodes.
 
 ![](images/visualizer.png) 
 
@@ -418,7 +421,7 @@ networks:
 
 1. Deploy the `pets` stack again with the above compose file. 
 
-2. Once all the service tasks are up go to the `web` service externally published `<ip>:<port>` that maps to the internal port `5000`. The Docker Pets app is written to take advantage of the stateful backend. Now it gives you the capability to cast a vote for your favorite pet. The vote will be stored by the `db` service along with the number of visits to the application.
+2. Once all the service tasks are up go to the `web` service externally published `<node1-public-ip>:<port>` that maps to the internal port `5000`. The Docker Pets app is written to take advantage of the stateful backend. Now it gives you the capability to cast a vote for your favorite pet. The vote will be stored by the `db` service along with the number of visits to the application.
 
 3. Submit your name and vote to the app.
 
@@ -428,7 +431,7 @@ After you cast your vote you will get redirected back to the pets landing page.
 
 4. Refresh the page a few times with Server Another Pet. You will see the page views climb while you get served across all three `web` containers.
 
-5. Now go to the `web` service externally published `<ip>:<port>` that maps to the internal port `7000`. This page totals the number of votes that are held in the `db` backend.
+5. Now go to the `web` service externally published `<node1-public-ip>:<port>` that maps to the internal port `7000`. This page totals the number of votes that are held in the `db` backend.
 
 ![](images/results.png) 
 
@@ -508,7 +511,7 @@ We have made two additions to this compose file:
 - `ADMIN_PASSWORD_FILE:` is an environment variable that tells the `web` service that the secret will be stored at the location `/run/secrets/admin_password`
 - `secrets: admin_password` references the secret that we created in UCP. UCP will send the secret to the `web` containers wherever they are scheduled.
 
-3. Now go to the `<host-ip>:<port>` on the `pets_web` service that is mapped to the internal port `7000`. This is the administrator consul that displays the votes. It should be protected by a password now. Use the secret you entered as the `admin_password`.
+3. Now go to the `<node1-public-ip>:<port>` on the `pets_web` service that is mapped to the internal port `7000`. This is the administrator consul that displays the votes. It should be protected by a password now. Use the secret you entered as the `admin_password`.
 
 ![](images/password.png)
 
@@ -517,11 +520,11 @@ We have made two additions to this compose file:
 
 The Docker Pets application is built with a `/health` endpoint to advertise it's own health on port `5000`. Docker uses this endpoint to manage the lifecycle of the application.
 
-1. View the application health by going to `<host-ip>:<port>/health` in your browser. You can use the `ip` of any of your UCP nodes. The `port` must be the external port that publishes the internal port `5000`.
+1. View the application health by going to `<node1-public-ip>:<port>/health` in your browser. You can use the `ip` of any of your UCP nodes. The `port` must be the external port that publishes the internal port `5000`.
 
 You should receive an `OK` message indicating that this particular container is healthy.
 
-2. Now use your browser and go to the `<ip>:<port>/kill` URL. This will toggle the health to unhealthy for one of the `web` containers. 
+2. Now use your browser and go to the `<node1-public-ip>:<port>/kill` URL. This will toggle the health to unhealthy for one of the `web` containers. 
 
 You should receive a message similar to:
 ```
@@ -568,7 +571,7 @@ These values mean that during a rolling update, containers will be updated `1` c
 
 8. Repeat step 2 with the same values and click Save Changes.
 
-9. Observe a successful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health. Now go to the `<host-ip>:<port>` that corresponds to the internal port `5000`. After a couple refreshes you should see that some of the containers have already updated.
+9. Observe a successful rolling update in the Visualizer. You will start to see each container being updated with the new image and in good health. Now go to the `<node1-public-ip>:<port>` that corresponds to the internal port `5000`. After a couple refreshes you should see that some of the containers have already updated.
 
 10. Before you go on to the next section, delete the `pets` stack.
 
