@@ -252,7 +252,7 @@ For instance if `dtr3.dockerdemos.com` was your cluster then you would issue the
 docker run -it --rm -v /etc/docker:/etc/docker mbentley/trustdtr dtr3.dockerdemos.com
 ```
 
-2. Log in to DTR with your username. This is the username (`userxxxx`) and password is `Docker2017!`.
+2. Log in to DTR with your username and password.
 
 ```
 ~/docker-pets $ docker login <dtr-cluster>.dockerdemos.com
