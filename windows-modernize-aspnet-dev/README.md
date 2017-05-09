@@ -276,7 +276,7 @@ There's another change to the web app to use environment variables for configura
 
 ## <a name="task3.2"></a> Task 3.2: Implementing the save in a console app
 
-In the version 2 solution there's also a message hanbler project. It's a .NET console app with all the code in the [Program](v2-src/ProductLaunch/ProductLaunch.MessageHandlers.SaveProspect/Program.cs) class. It connects to NATS using the same `MessageQueue` class, and listens for `ProspectSignedUpEvent` messages. For each message it receives, the handler extracts the prospect details from the message and saves them to the database:
+In the version 2 solution there's also a message handler project. It's a .NET console app with all the code in the [Program](v2-src/ProductLaunch/ProductLaunch.MessageHandlers.SaveProspect/Program.cs) class. It connects to NATS using the same `MessageQueue` class, and listens for `ProspectSignedUpEvent` messages. For each message it receives, the handler extracts the prospect details from the message and saves them to the database:
 
 ```
 var prospect = eventMessage.Prospect;
