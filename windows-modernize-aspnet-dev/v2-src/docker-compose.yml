@@ -34,7 +34,7 @@ services:
   save-prospect-handler:
     image: <DockerID>/modernize-aspnet-handler:v2
     environment:
-      - DB_CONNECTION_STRING=Server=product-launch-db;Database=ProductLaunch;User Id=sa;Password=DockerCon2017!;
+      - DB_CONNECTION_STRING=Server=product-launch-db;Database=ProductLaunch;User Id=sa;Password=DockerCon2017;
     depends_on:
       - product-launch-db
       - message-queue
