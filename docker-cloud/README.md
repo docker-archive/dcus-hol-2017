@@ -133,7 +133,7 @@ In this step, you're going to build two GitHub repositories - one for the **voti
 
 6. Select "Click here to customize the build settings" to configure the build rules.
 
-7. Under **Dockerfile location** enter **/results/Dockerfile** .
+7. Under **Build Context** enter **/results** .
 
 8. Click **Create** at the bottom of the page.
 
