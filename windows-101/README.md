@@ -239,7 +239,7 @@ docker push <DockerID>/dockercon-tweet-app
 
 You'll see the upload progress for each layer in the Docker image. The IIS layer is almost 300MB so that will take a few seconds. The whole image is over 10GB, but the bulk of that is in the Windows Server Core base image. Those layers are already stored in Docker Hub, so they don't get uploaded - only the new parts of the image get pushed.
 
-You can browse to *https://hub.docker.com/r/&lt;DockerID&gt;/dockercon-tweet-app/* and see your newly-pushed app image. This is a public repository, so anyone can pull the image - you don't even need a Docker ID to pull public images.
+You can browse to [https://hub.docker.com/r/&lt;DockerID&gt;/dockercon-tweet-app/](https://hub.docker.com/r/<DockerID>/dockercon-tweet-app/) and see your newly-pushed app image. This is a public repository, so anyone can pull the image - you don't even need a Docker ID to pull public images.
 
 ## <a name="task2.3"></a>Task 2.3: Run your website in a container
 
