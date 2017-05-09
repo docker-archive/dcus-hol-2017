@@ -133,11 +133,15 @@ In this step, you're going to build two GitHub repositories - one for the **voti
 
 6. Select "Click here to customize the build settings" to configure the build rules.
 
-7. Under **Build Context** enter **/results** .
-
-8. Click **Create** at the bottom of the page.
+7. Click **Create** at the bottom of the page.
 
   You will be taken to the repository page.
+
+> Right now Docker Cloud doesn't let you specify the build context when you create a repository, so you need to update the settings
+
+8. Navigate to the Builds page and click 'Configure Automated Builds'. Scroll down to Build Rule, and set the **Build Context** to **/results**:
+
+![](images/update-automated-build.png)
 
 ### Create a second repository
 Repeat steps 1-8 with the following modifications:
