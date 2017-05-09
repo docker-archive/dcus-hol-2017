@@ -326,7 +326,7 @@ You will be taking **node1-b** out of service for maintenance.
 If you haven't already done so, please SSH in to **node1-b**.
 
 ```
-$ ssh ubuntu@<node0-a IP address>
+$ ssh ubuntu@<node1-b IP address>
 ```
 
 Then lets see the containers that you have running there.
