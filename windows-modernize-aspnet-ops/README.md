@@ -310,7 +310,7 @@ Browse to VM 2 on your laptop and refresh the site while the update happens. You
 Automated updates are a huge benefit of the Docker platform. Updating a distributed application in a safe, automated way takes all the risk out of deployments, and makes frequent releases possible. If you don't like the new color scheme in v1.1 you can easily roll back to v1.0:
 
 ```
-docker service update --with-registry-auth --rollback sample
+docker service update --rollback sample
 ```
 
 Rolling back is conceptually the same as updating. The existing containers are stopped, and new containers created using the original image version. Browse to the site now and you will see version 1.0 running again. Automated rollback may be an even bigger benefit than automatic update. Knowing you can revert to the previous good version without any downtime and without a lengthy manual procedure gives you confidence in your deployment process, even if there are problems in the application itself.
