@@ -305,6 +305,11 @@ cd C:\scm\github\docker\dcus-hol-2017\windows-modernize-aspnet-dev\v2-src
 .\build.ps1 <DockerID>
 ```
 
+If you receive a message that build.ps1 cannot be loaded because running scripts is disabled on this system, you will need to set the execution policy for the current user:
+```
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
 When that finishes, run `docker image ls -f reference=<DockerID>/*`. You'll see you have lab images for the builder, message handler and a new version of the web app. The app is a distributed solution now, which will run across multiple containers.
 
 For the app to work properly, the containers need to be started in the right order, with the right parameters and names. You could do that with a PowerShell script, but Docker Compose is a better option. The v2 source has a compose file which defines all the services the solution needs, together with their configuration and the dependencies between them.
